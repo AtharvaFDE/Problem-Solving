@@ -1177,3 +1177,470 @@ ORDER BY CTR DESC, ad_id ASC;
 
 ---
 
+### 21Q) Find the Team Size of Each Employee
+
+## Employee Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| employee_id | int |
+| team_id | int |
+
+## Solution
+
+```sql
+SELECT
+    employee_id,
+    COUNT(*) OVER (
+        PARTITION BY team_id
+    ) AS team_size
+FROM Employee;
+```
+
+## Explanation
+
+1. COUNT(*):
+   - Counts the total number of employees.
+   - Counts all rows within each team.
+
+2. OVER():
+   - Converts the aggregate function into a window function.
+   - Allows us to calculate team sizes without combining rows.
+
+3. PARTITION BY team_id:
+   - Divides employees into separate groups based on their team_id.
+   - Calculates the employee count separately for each team.
+   - Every employee retains their individual row in the result.
+
+4. team_size:
+   - Displays the total number of employees belonging to each employee's team.
+
+## Optimization
+
+- Uses a window function to calculate team sizes in a single query.
+- Avoids using a separate GROUP BY query and JOIN.
+- Preserves every employee record in the output.
+
+## Interview Tip
+
+- Use GROUP BY when you need one result row per group.
+- Use window functions when you need group-level calculations while keeping individual rows.
+- Remember that PARTITION BY divides rows into groups without reducing the number of rows returned.
+
+## Key Concepts
+
+- COUNT()
+- Window Functions
+- OVER()
+- PARTITION BY
+- Aggregate Functions
+
+---
+
+### 22Q) Find the Weather Type in Each Country for November 2019
+
+## Countries Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| country_id | int |
+| country_name | varchar |
+
+## Weather Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| country_id | int |
+| weather_state | int |
+| day | date |
+
+## Sample Input
+
+Countries Table:
+
+| country_id | country_name |
+|---:|---|
+| 2 | USA |
+| 3 | Australia |
+| 7 | Peru |
+| 5 | China |
+| 8 | Morocco |
+| 9 | Spain |
+
+Weather Table:
+
+| country_id | weather_state | day |
+|---:|---:|---|
+| 2 | 15 | 2019-11-01 |
+| 3 | -2 | 2019-11-10 |
+| 3 | 0 | 2019-11-11 |
+| 3 | 3 | 2019-11-12 |
+| 5 | 16 | 2019-11-07 |
+| 5 | 18 | 2019-11-09 |
+| 5 | 21 | 2019-11-23 |
+| 7 | 25 | 2019-11-28 |
+| 8 | 25 | 2019-11-05 |
+| 8 | 27 | 2019-11-15 |
+| 8 | 31 | 2019-11-25 |
+
+## Sample Output
+
+| country_name | weather_type |
+|---|---|
+| USA | Cold |
+| Australia | Cold |
+| Peru | Hot |
+| Morocco | Hot |
+| China | Warm |
+
+## Solution
+
+```sql
+SELECT
+    c.country_name,
+    CASE
+        WHEN AVG(w.weather_state) <= 15 THEN 'Cold'
+        WHEN AVG(w.weather_state) >= 25 THEN 'Hot'
+        ELSE 'Warm'
+    END AS weather_type
+FROM Countries c
+JOIN Weather w
+    ON c.country_id = w.country_id
+WHERE
+    w.day >= '2019-11-01'
+    AND w.day < '2019-12-01'
+GROUP BY
+    c.country_id,
+    c.country_name;
+```
+
+## Explanation
+
+1. JOIN:
+   - Combines Countries and Weather tables using country_id.
+   - Matches each country's name with its weather records.
+
+2. WHERE:
+   - Filters weather records for November 2019.
+   - Uses the date range from November 1 to before December 1.
+   - Excludes weather records outside November.
+
+3. GROUP BY:
+   - Groups weather records country-wise.
+   - Calculates a separate average for each country.
+
+4. AVG():
+   - Calculates the average weather_state for each country.
+   - Considers only November 2019 records.
+
+5. CASE WHEN:
+   - Classifies each country's weather based on its average weather_state.
+   - Average less than or equal to 15: Cold.
+   - Average greater than or equal to 25: Hot.
+   - Otherwise: Warm.
+
+## Optimization
+
+- Uses INNER JOIN to include only countries with matching weather records.
+- Filters dates before calculating averages.
+- Uses GROUP BY to calculate country-wise averages.
+- Uses CASE WHEN to classify weather directly in the query.
+
+## Interview Tip
+
+- Apply WHERE before GROUP BY to filter records before aggregation.
+- Use AVG() to calculate average values for each group.
+- Use CASE WHEN for multiple conditional classifications.
+- Use a half-open date range (>= November 1 and < December 1) to include the entire month safely, even if the date column later changes to a datetime type.
+- Remember that INNER JOIN excludes countries without matching weather records.
+
+## Key Concepts
+
+- INNER JOIN
+- WHERE
+- GROUP BY
+- AVG()
+- CASE WHEN
+- Date Filtering
+- Aggregate Functions
+
+---
+
+### 23Q) Find the Average Selling Price for Each Product
+
+## Prices Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| product_id | int |
+| start_date | date |
+| end_date | date |
+| price | int |
+
+## UnitsSold Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| product_id | int |
+| purchase_date | date |
+| units | int |
+
+## Sample Input
+
+Prices Table:
+
+| product_id | start_date | end_date | price |
+|---:|---|---|---:|
+| 1 | 2019-02-17 | 2019-02-28 | 5 |
+| 1 | 2019-03-01 | 2019-03-22 | 20 |
+| 2 | 2019-02-01 | 2019-02-20 | 15 |
+| 2 | 2019-02-21 | 2019-03-31 | 30 |
+
+UnitsSold Table:
+
+| product_id | purchase_date | units |
+|---:|---|---:|
+| 1 | 2019-02-25 | 100 |
+| 1 | 2019-03-01 | 15 |
+| 2 | 2019-02-10 | 200 |
+| 2 | 2019-03-22 | 30 |
+
+## Sample Output
+
+| product_id | average_price |
+|---:|---:|
+| 1 | 6.96 |
+| 2 | 16.96 |
+
+## Solution
+
+```sql
+SELECT
+    p.product_id,
+    ROUND(
+        SUM(p.price * u.units) / SUM(u.units),
+        2
+    ) AS average_price
+FROM Prices p
+INNER JOIN UnitsSold u
+    ON p.product_id = u.product_id
+    AND u.purchase_date BETWEEN p.start_date AND p.end_date
+GROUP BY
+    p.product_id;
+```
+
+## Explanation
+
+1. INNER JOIN:
+   - Combines Prices and UnitsSold tables using product_id.
+   - Matches each product with its corresponding sales records.
+
+2. BETWEEN:
+   - Checks whether purchase_date falls between start_date and end_date.
+   - Ensures that the correct price is applied to each purchase.
+
+3. Total Sales Amount:
+   - Uses `SUM(p.price * u.units)` to calculate the total revenue for each product.
+   - Multiplies the product price by the number of units sold.
+
+4. Total Units Sold:
+   - Uses `SUM(u.units)` to calculate the total units sold for each product.
+
+5. GROUP BY:
+   - Groups sales records by product_id.
+   - Calculates the average selling price separately for each product.
+
+6. ROUND():
+   - Rounds the calculated average selling price to 2 decimal places.
+
+## Optimization
+
+- Uses INNER JOIN to match only valid product sales with their applicable price periods.
+- Uses BETWEEN to identify the correct price based on purchase_date.
+- Calculates total revenue and total units in a single grouped query.
+- Avoids unnecessary subqueries and additional table scans.
+
+## Interview Tip
+
+- Understand the difference between a simple average and a weighted average.
+- Use `SUM(price * units) / SUM(units)` for weighted average calculations.
+- Remember that BETWEEN includes both the start_date and end_date.
+- Use GROUP BY to calculate product-wise results.
+- Use ROUND() when a specific decimal precision is required.
+
+## Key Concepts
+
+- INNER JOIN
+- Table Aliases
+- BETWEEN
+- SUM()
+- GROUP BY
+- ROUND()
+- Weighted Average
+- Date Range Matching
+
+---
+
+### 24Q) Find the First Login Date for Each Player
+
+## Activity Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| player_id | int |
+| device_id | int |
+| event_date | date |
+| games_played | int |
+
+## Sample Input
+
+Activity Table:
+
+| player_id | device_id | event_date | games_played |
+|---:|---:|---|---:|
+| 1 | 2 | 2016-03-01 | 5 |
+| 1 | 2 | 2016-05-02 | 6 |
+| 2 | 3 | 2017-06-25 | 1 |
+| 3 | 1 | 2016-03-02 | 0 |
+| 3 | 4 | 2018-07-03 | 5 |
+
+## Sample Output
+
+| player_id | first_login |
+|---:|---|
+| 1 | 2016-03-01 |
+| 2 | 2017-06-25 |
+| 3 | 2016-03-02 |
+
+## Solution
+
+```sql
+SELECT
+    player_id,
+    MIN(event_date) AS first_login
+FROM Activity
+GROUP BY
+    player_id;
+```
+
+## Explanation
+
+1. MIN():
+   - Finds the earliest login date for each player.
+   - Returns the smallest event_date value.
+
+2. GROUP BY:
+   - Groups all activity records based on player_id.
+   - Ensures that each player appears only once in the result.
+
+3. Column Alias:
+   - Uses `AS first_login` to rename the calculated date column.
+
+## Optimization
+
+- Uses MIN() to find the earliest login date directly.
+- Uses GROUP BY to calculate the first login separately for each player.
+- Avoids unnecessary joins and subqueries.
+- Provides one result row for each player.
+
+## Interview Tip
+
+- Use MIN() to find the earliest date.
+- Use MAX() to find the latest date.
+- Use GROUP BY when you need aggregate results for each group.
+- Remember that MIN() works with date columns as well as numeric columns.
+
+## Key Concepts
+
+- MIN()
+- GROUP BY
+- Aggregate Functions
+- Column Aliases
+- Date Functions
+
+---
+
+### 25Q) Find the Device Used for Each Player's First Login
+
+## Activity Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| player_id | int |
+| device_id | int |
+| event_date | date |
+| games_played | int |
+
+Primary Key: `(player_id, event_date)`
+
+## Sample Input
+
+| player_id | device_id | event_date | games_played |
+|---:|---:|---|---:|
+| 1 | 2 | 2016-03-01 | 5 |
+| 1 | 2 | 2016-05-02 | 6 |
+| 2 | 3 | 2017-06-25 | 1 |
+| 3 | 1 | 2016-03-02 | 0 |
+| 3 | 4 | 2018-07-03 | 5 |
+
+## Sample Output
+
+| player_id | device_id |
+|---:|---:|
+| 1 | 2 |
+| 2 | 3 |
+| 3 | 1 |
+
+## Solution
+
+```sql
+SELECT
+    a.player_id,
+    a.device_id
+FROM Activity a
+INNER JOIN (
+    SELECT
+        player_id,
+        MIN(event_date) AS first_login
+    FROM Activity
+    GROUP BY player_id
+) b
+    ON a.player_id = b.player_id
+    AND a.event_date = b.first_login;
+```
+
+## Explanation
+
+1. Subquery:
+   - Use `MIN(event_date)` to find the earliest login date for each player.
+   - Use `GROUP BY player_id` to calculate the first login date separately for every player.
+
+2. INNER JOIN:
+   - Join the subquery result with the original Activity table.
+   - Match both `player_id` and `event_date` with the first login date.
+
+3. SELECT:
+   - Retrieve the `player_id` and the `device_id` used on the first login.
+
+## Optimization
+
+- The composite primary key `(player_id, event_date)` ensures that each player's login date is unique.
+- The join matches only the earliest activity record for each player.
+- An index on `(player_id, event_date)` can help queries that filter or join using these columns.
+
+## Interview Tip
+
+When a question asks you to retrieve another column from the row containing the minimum or maximum value, finding `MIN()` or `MAX()` alone is not enough.
+
+First find the minimum or maximum value, then join it back to the original table to retrieve the related columns.
+
+## Key Concepts
+
+- `MIN()`
+- `GROUP BY`
+- `INNER JOIN`
+- Subqueries
+- Table Aliases
+- Composite Primary Key
+
+---
