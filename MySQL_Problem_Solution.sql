@@ -417,3 +417,133 @@ ORDER BY CTR DESC,
 -- 1. First, sort ads by CTR from highest to lowest.
 -- 2. If two ads have the same CTR, sort their ad_id from smallest to largest.
 
+
+-- Q21) Write an SQL query to find the team size of each employee.
+-- Each employee belongs to a team identified by team_id.
+-- Calculate the total number of employees in each team.
+-- Return employee_id and team_size for every employee.
+-- The result can be returned in any order.
+
+
+SELECT
+	employee_id,
+	COUNT(*) OVER(
+		PARTITION BY team_id
+	) as team_size
+FROM
+	Employee;
+
+
+-- Q22) Write an SQL query to find the type of weather in each country for November 2019.
+--
+-- Calculate the average weather_state for each country during November 2019.
+--
+-- Weather Classification:
+-- 1. Cold: Average weather_state <= 15
+-- 2. Hot: Average weather_state >= 25
+-- 3. Warm: Otherwise
+--
+-- Return country_name and weather_type.
+-- Exclude countries that have no weather records in November 2019.
+-- The result can be returned in any order.
+
+
+
+SELECT
+	c.country_name,
+	CASE
+		WHEN AVG(w.weather_state) <= 15 THEN 'Cold'
+		WHEN AVG(w.weather_state) >=15 THEN 'HOT'
+		ELSE 'Warm'
+	END AS weather_type 
+FROM 
+	Countries c
+INNER JOIN 
+	Weather w 
+ON 
+	c.country_id = w.country_id 
+WHERE 
+	w.day >= '2019-11-01'
+AND
+	w.day < '2019-12-01'
+GROUP BY 
+	c.country_id,
+	c.country_name;
+
+
+-- Q23) Write an SQL query to find the average selling price for each product.
+--
+-- Calculate the average selling price using the following formula:
+-- Average Price = Total Sales Amount / Total Units Sold
+--
+-- Total Sales Amount = SUM(price * units)
+-- Total Units Sold = SUM(units)
+--
+-- Match the Prices and UnitsSold tables using product_id.
+-- Match purchase_date with the corresponding start_date and end_date.
+-- Round the average_price to 2 decimal places.
+-- Return product_id and average_price.
+-- The result can be returned in any order.
+
+
+SELECT 
+	p.product_id,
+	ROUND(
+		SUM(p.price * u.units) / SUM(u.units),
+	2) AS average_price
+FROM
+	Prices p 
+INNER JOIN 
+	UnitsSold u  
+ON
+	p.product_id = u.product_id
+AND
+	u.purchase_date BETWEEN p.start_date AND p.end_date
+GROUP BY 
+	p.product_id;
+
+
+
+-- Q24) Write an SQL query to report the first login date for each player.
+--
+-- Find the earliest event_date for every player.
+-- Return player_id and first_login.
+-- Use an appropriate aggregate function to find the minimum event_date.
+-- Group the records by player_id.
+-- The result can be returned in any order.
+
+
+SELECT
+    player_id,
+    MIN(event_date) AS first_login
+FROM Activity
+GROUP BY player_id;
+
+
+-- Q25) Write an SQL query to report the device that each player used for their first login.
+-- Find the earliest event_date for every player using MIN().
+-- Use INNER JOIN to retrieve the device_id associated with the first login date.
+-- Return player_id and device_id.
+
+
+
+SELECT
+	a.player_id,
+	a.device_id
+FROM
+	Activity a
+INNER JOIN (
+	SELECT
+		player_id,
+		MIN(event_date) AS first_login
+	FROM
+		Acitvity
+	GROUP BY 
+		player_id 
+) b 
+ON  a.player_id = b.player_id 
+AND a.event_date = b.first_login;
+
+
+
+
