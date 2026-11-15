@@ -2184,3 +2184,3036 @@ ORDER BY
 
 ---
 
+
+
+### Q41) Display the name of the employee along with their annual salary (Sal * 12). The employee earning the highest annual salary should appear first.
+
+## Problem Description
+
+Write an SQL query to display employee names along with their annual salaries.
+
+Calculate annual salary by multiplying monthly salary by 12.
+
+Sort the result from highest annual salary to lowest annual salary.
+
+Table: `emp`
+
+Columns:
+- `ename` – Employee Name
+- `sal` – Employee Salary
+
+## Solution
+
+```sql
+SELECT
+    ename AS Employee_Name,
+    (sal * 12) AS Annual_Salary
+FROM
+    emp
+ORDER BY
+    Annual_Salary DESC;
+```
+
+## Explanation
+
+- `ename` displays the employee name.
+- `sal * 12` calculates the annual salary.
+- `AS Annual_Salary` assigns a meaningful name to the calculated column.
+- `ORDER BY Annual_Salary DESC` sorts employees from highest annual salary to lowest annual salary.
+
+## Example Output
+
+| Employee_Name | Annual_Salary |
+|---|---:|
+| KING | 60000 |
+| SCOTT | 36000 |
+| FORD | 36000 |
+| JONES | 35700 |
+| ALLEN | 19200 |
+
+Note: Example output only.
+
+## New Concept: Calculated Columns
+
+A calculated column is created by performing an arithmetic operation on existing columns.
+
+Example:
+
+```sql
+-- Calculate annual salary
+SELECT
+    ename,
+    sal * 12 AS Annual_Salary
+FROM emp;
+```
+
+## New Concept: ORDER BY with Alias
+
+In MySQL, you can use a column alias in the `ORDER BY` clause.
+
+Example:
+
+```sql
+SELECT
+    ename,
+    sal * 12 AS Annual_Salary
+FROM emp
+ORDER BY Annual_Salary DESC;
+```
+
+## Key Concepts
+
+- Arithmetic Operations – Perform calculations using operators such as `*`, `+`, and `-`.
+- Calculated Column – Creates a result using existing column values.
+- `AS` – Assigns an alias to a column.
+- `ORDER BY` – Sorts query results.
+- `DESC` – Sorts values from highest to lowest.
+
+---
+
+
+
+### Q42) Display Employee Name, Salary, HRA, PF, DA, and Total Salary
+
+## Problem Description
+
+Write a SQL query to display the employee name, salary, HRA, PF, DA, and total salary for each employee.
+
+Calculation requirements:
+
+- HRA = 15% of Salary
+- PF = 5% of Salary
+- DA = 10% of Salary
+- Total Salary = Salary + HRA + DA - PF
+
+Display employees in descending order of Total Salary (highest first).
+
+## Solution
+
+```sql
+SELECT
+    ename AS Employee_Name,
+    sal AS Salary,
+    sal * 0.15 AS HRA,
+    sal * 0.05 AS PF,
+    sal * 0.10 AS DA,
+    sal + (sal * 0.15) + (sal * 0.10) - (sal * 0.05) AS Total_Salary
+FROM
+    emp
+ORDER BY
+    Total_Salary DESC;
+```
+
+## Explanation
+
+1. `ename AS Employee_Name` – Displays the employee name with a readable column heading.
+2. `sal AS Salary` – Displays the employee's basic salary.
+3. `sal * 0.15` – Calculates HRA as 15% of salary.
+4. `sal * 0.05` – Calculates PF as 5% of salary.
+5. `sal * 0.10` – Calculates DA as 10% of salary.
+6. `Total_Salary` – Adds salary, HRA, and DA, then subtracts PF.
+7. `ORDER BY Total_Salary DESC` – Sorts employees from highest to lowest total salary.
+
+## New Concept
+
+### 1. Percentage Calculation
+
+To calculate a percentage in SQL, multiply the value by the percentage divided by 100.
+
+Examples:
+
+```sql
+sal * 0.15  -- 15%
+sal * 0.05  -- 5%
+sal * 0.10  -- 10%
+```
+
+### 2. Calculated Columns
+
+SQL allows mathematical expressions in the `SELECT` statement to calculate values dynamically.
+
+### 3. Column Aliases
+
+`AS` assigns a readable name to a calculated column.
+
+Example:
+
+```sql
+sal * 0.15 AS HRA
+```
+
+### 4. ORDER BY with Alias
+
+You can use a column alias in `ORDER BY` to sort the calculated result.
+
+```sql
+ORDER BY Total_Salary DESC;
+```
+
+## Key Concepts
+
+- SELECT
+- Mathematical Operators (+, -, *)
+- Percentage Calculation
+- Column Aliases (AS)
+- Calculated Columns
+- ORDER BY
+- DESC
+
+---
+
+
+
+### Q43) Display Department Numbers and Total Number of Employees Within Each Department
+
+## Problem Description
+
+Write a SQL query to display each department number along with the total number of employees working in that department.
+
+## Solution 1: Using GROUP BY
+
+```sql
+SELECT
+    dept AS Department_Number,
+    COUNT(*) AS Total_Employees
+FROM
+    emp
+GROUP BY
+    dept;
+```
+
+## Solution 2: Using GROUP BY with ORDER BY
+
+```sql
+SELECT
+    dept AS Department_Number,
+    COUNT(*) AS Total_Employees
+FROM
+    emp
+GROUP BY
+    dept
+ORDER BY
+    dept ASC;
+```
+
+## Solution 3: Using a Subquery
+
+```sql
+SELECT
+    Department_Number,
+    Total_Employees
+FROM
+    (
+        SELECT
+            dept AS Department_Number,
+            COUNT(*) AS Total_Employees
+        FROM
+            emp
+        GROUP BY
+            dept
+    ) AS Department_Employee_Count;
+```
+
+## Explanation
+
+1. `SELECT dept` – Displays the department number.
+2. `COUNT(*)` – Counts all employee records in each department group.
+3. `GROUP BY dept` – Groups employees based on their department number.
+4. `ORDER BY dept ASC` – Sorts the department numbers in ascending order.
+5. The subquery first calculates employee counts by department, and the outer query displays those results.
+
+## New Concept
+
+### 1. GROUP BY
+
+`GROUP BY` combines rows that have the same value in a specified column into groups.
+
+Example:
+
+```sql
+SELECT
+    dept,
+    COUNT(*)
+FROM
+    emp
+GROUP BY
+    dept;
+```
+
+### 2. COUNT()
+
+`COUNT(*)` returns the total number of rows in each group.
+
+### 3. ORDER BY
+
+`ORDER BY` sorts the result.
+
+- `ASC` – Ascending order.
+- `DESC` – Descending order.
+
+### 4. Subquery
+
+A subquery is a query written inside another SQL query. The inner query executes to produce results that the outer query can use.
+
+## Key Concepts
+
+- SELECT
+- COUNT()
+- GROUP BY
+- ORDER BY
+- ASC
+- Subquery
+- Column Aliases (AS)
+
+---
+
+
+
+### Q44) Display Different Job Titles and Total Number of Employees in Each Job Group
+
+## Problem Description
+
+Write a SQL query to display the different job titles along with the total number of employees working in each job group.
+
+## Solution 1: Using GROUP BY
+
+```sql
+SELECT
+    job AS Job_Title,
+    COUNT(*) AS Total_Employees
+FROM
+    emp
+GROUP BY
+    job;
+```
+
+## Solution 2: Using GROUP BY with ORDER BY
+
+```sql
+SELECT
+    job AS Job_Title,
+    COUNT(*) AS Total_Employees
+FROM
+    emp
+GROUP BY
+    job
+ORDER BY
+    job ASC;
+```
+
+## Solution 3: Using a Subquery
+
+```sql
+SELECT
+    Job_Title,
+    Total_Employees
+FROM
+    (
+        SELECT
+            job AS Job_Title,
+            COUNT(*) AS Total_Employees
+        FROM
+            emp
+        GROUP BY
+            job
+    ) AS Job_Employee_Count;
+```
+
+## Solution 4: Using a Derived Table with ORDER BY
+
+```sql
+SELECT
+    Job_Title,
+    Total_Employees
+FROM
+    (
+        SELECT
+            job AS Job_Title,
+            COUNT(*) AS Total_Employees
+        FROM
+            emp
+        GROUP BY
+            job
+    ) AS Job_Employee_Count
+ORDER BY
+    Job_Title ASC;
+```
+
+## Explanation
+
+1. `job AS Job_Title` – Displays the employee's job title with a readable column name.
+2. `COUNT(*)` – Counts the total number of employees in each job group.
+3. `GROUP BY job` – Groups employees who have the same job title.
+4. `ORDER BY job ASC` – Sorts job titles alphabetically.
+5. The subquery first calculates the employee count for each job title. The outer query displays the calculated results.
+
+## New Concept
+
+### 1. GROUP BY
+
+`GROUP BY` combines rows with the same value into groups.
+
+Example:
+
+```sql
+SELECT
+    job,
+    COUNT(*)
+FROM
+    emp
+GROUP BY
+    job;
+```
+
+### 2. COUNT()
+
+`COUNT(*)` counts all rows within each group.
+
+### 3. Subquery
+
+A subquery is a query written inside another query. It allows the outer query to use the result of the inner query.
+
+### 4. Derived Table
+
+A derived table is a subquery used in the `FROM` clause. It acts like a temporary table for the outer query.
+
+### 5. ORDER BY
+
+`ORDER BY` sorts the final result.
+
+- `ASC` – Ascending order.
+- `DESC` – Descending order.
+
+## Key Concepts
+
+- SELECT
+- COUNT()
+- GROUP BY
+- ORDER BY
+- ASC
+- Subquery
+- Derived Table
+- Column Aliases (AS)
+
+---
+
+
+
+### Q45) Display Department Numbers and Total Salary for Each Department
+
+## Problem Description
+
+Write a SQL query to display each department number along with the total salary paid to all employees working in that department.
+
+## Solution 1: Using GROUP BY
+
+```sql
+SELECT
+    dept AS Department_Number,
+    SUM(sal) AS Total_Salary
+FROM
+    emp
+GROUP BY
+    dept;
+```
+
+## Solution 2: Using GROUP BY with ORDER BY
+
+```sql
+SELECT
+    dept AS Department_Number,
+    SUM(sal) AS Total_Salary
+FROM
+    emp
+GROUP BY
+    dept
+ORDER BY
+    dept ASC;
+```
+
+## Solution 3: Using a Subquery
+
+```sql
+SELECT
+    Department_Number,
+    Total_Salary
+FROM
+    (
+        SELECT
+            dept AS Department_Number,
+            SUM(sal) AS Total_Salary
+        FROM
+            emp
+        GROUP BY
+            dept
+    ) AS Department_Salary;
+```
+
+## Solution 4: Using a Subquery with ORDER BY
+
+```sql
+SELECT
+    Department_Number,
+    Total_Salary
+FROM
+    (
+        SELECT
+            dept AS Department_Number,
+            SUM(sal) AS Total_Salary
+        FROM
+            emp
+        GROUP BY
+            dept
+    ) AS Department_Salary
+ORDER BY
+    Total_Salary DESC;
+```
+
+## Explanation
+
+1. `dept AS Department_Number` – Displays the department number.
+2. `SUM(sal)` – Calculates the total salary of employees in each department.
+3. `GROUP BY dept` – Groups employees according to their department number.
+4. `ORDER BY dept ASC` – Sorts department numbers in ascending order.
+5. `ORDER BY Total_Salary DESC` – Sorts departments from highest total salary to lowest.
+6. The subquery calculates the department-wise salary totals, and the outer query displays the results.
+
+## New Concept
+
+### 1. SUM()
+
+`SUM()` is an aggregate function that calculates the total of numeric values.
+
+Example:
+
+```sql
+SELECT SUM(sal)
+FROM emp;
+```
+
+### 2. GROUP BY with SUM()
+
+You can combine `GROUP BY` and `SUM()` to calculate totals separately for each group.
+
+Example:
+
+```sql
+SELECT
+    dept,
+    SUM(sal)
+FROM
+    emp
+GROUP BY
+    dept;
+```
+
+### 3. Aggregate Functions
+
+Aggregate functions perform calculations on multiple rows and return a single result per group.
+
+Common aggregate functions:
+
+- `COUNT()` – Counts rows.
+- `SUM()` – Calculates the total.
+- `AVG()` – Calculates the average.
+- `MAX()` – Finds the maximum value.
+- `MIN()` – Finds the minimum value.
+
+### 4. Subquery and Derived Table
+
+A subquery is a query inside another query. When used in the `FROM` clause, it creates a derived table that the outer query can read.
+
+## Key Concepts
+
+- SELECT
+- SUM()
+- GROUP BY
+- ORDER BY
+- ASC
+- DESC
+- Aggregate Functions
+- Subquery
+- Derived Table
+- Column Aliases (AS)
+
+---
+
+
+
+### Q46) Display Different Jobs and Total Salary for Each Job
+
+## Problem Description
+
+Write a SQL query to display the different job titles along with the total salary paid to employees working in each job.
+
+## Solution 1: Using GROUP BY
+
+```sql
+SELECT
+    job AS Job_Title,
+    SUM(sal) AS Total_Salary
+FROM
+    emp
+GROUP BY
+    job;
+```
+
+## Solution 2: Using GROUP BY with ORDER BY
+
+```sql
+SELECT
+    job AS Job_Title,
+    SUM(sal) AS Total_Salary
+FROM
+    emp
+GROUP BY
+    job
+ORDER BY
+    job ASC;
+```
+
+## Solution 3: Using a Subquery
+
+```sql
+SELECT
+    Job_Title,
+    Total_Salary
+FROM
+    (
+        SELECT
+            job AS Job_Title,
+            SUM(sal) AS Total_Salary
+        FROM
+            emp
+        GROUP BY
+            job
+    ) AS Job_Salary;
+```
+
+## Solution 4: Using a Subquery with ORDER BY
+
+```sql
+SELECT
+    Job_Title,
+    Total_Salary
+FROM
+    (
+        SELECT
+            job AS Job_Title,
+            SUM(sal) AS Total_Salary
+        FROM
+            emp
+        GROUP BY
+            job
+    ) AS Job_Salary
+ORDER BY
+    Total_Salary DESC;
+```
+
+## Explanation
+
+1. `job AS Job_Title` – Displays the employee's job title with a readable column name.
+2. `SUM(sal)` – Calculates the total salary paid to employees in each job group.
+3. `GROUP BY job` – Groups employees who have the same job title.
+4. `ORDER BY job ASC` – Sorts job titles alphabetically.
+5. `ORDER BY Total_Salary DESC` – Sorts job groups from highest total salary to lowest.
+6. The subquery calculates the total salary for each job, and the outer query displays the result.
+
+## New Concept
+
+### 1. SUM()
+
+`SUM()` is an aggregate function used to calculate the total of numeric values.
+
+Example:
+
+```sql
+SELECT SUM(sal)
+FROM emp;
+```
+
+### 2. GROUP BY with SUM()
+
+Combining `GROUP BY` and `SUM()` calculates totals separately for each group.
+
+Example:
+
+```sql
+SELECT
+    job,
+    SUM(sal)
+FROM
+    emp
+GROUP BY
+    job;
+```
+
+### 3. Aggregate Functions
+
+Aggregate functions perform calculations on multiple rows.
+
+- `COUNT()` – Counts rows.
+- `SUM()` – Calculates the total.
+- `AVG()` – Calculates the average.
+- `MAX()` – Finds the maximum value.
+- `MIN()` – Finds the minimum value.
+
+### 4. Subquery and Derived Table
+
+A subquery is a query inside another query. When used in the `FROM` clause, it creates a derived table that the outer query can use.
+
+## Key Concepts
+
+- SELECT
+- SUM()
+- GROUP BY
+- ORDER BY
+- ASC
+- DESC
+- Aggregate Functions
+- Subquery
+- Derived Table
+- Column Aliases (AS)
+
+---
+
+
+
+
+### Q47) Display Each Job Along with the Minimum Salary in Each Job Group
+
+## Problem Description
+
+Write a SQL query to display each job title along with the minimum salary paid to employees working in that job group.
+
+## Solution 1: Using GROUP BY
+
+```sql
+SELECT
+    job AS Job_Title,
+    MIN(sal) AS Minimum_Salary
+FROM
+    emp
+GROUP BY
+    job;
+```
+
+## Solution 2: Using GROUP BY with ORDER BY
+
+```sql
+SELECT
+    job AS Job_Title,
+    MIN(sal) AS Minimum_Salary
+FROM
+    emp
+GROUP BY
+    job
+ORDER BY
+    Minimum_Salary ASC;
+```
+
+## Solution 3: Using a Subquery
+
+```sql
+SELECT
+    Job_Title,
+    Minimum_Salary
+FROM
+    (
+        SELECT
+            job AS Job_Title,
+            MIN(sal) AS Minimum_Salary
+        FROM
+            emp
+        GROUP BY
+            job
+    ) AS Job_Minimum_Salary;
+```
+
+## Solution 4: Using a Subquery with ORDER BY
+
+```sql
+SELECT
+    Job_Title,
+    Minimum_Salary
+FROM
+    (
+        SELECT
+            job AS Job_Title,
+            MIN(sal) AS Minimum_Salary
+        FROM
+            emp
+        GROUP BY
+            job
+    ) AS Job_Minimum_Salary
+ORDER BY
+    Minimum_Salary ASC;
+```
+
+## Explanation
+
+1. `job AS Job_Title` – Displays the employee's job title.
+2. `MIN(sal)` – Finds the lowest salary in each job group.
+3. `GROUP BY job` – Groups employees who have the same job title.
+4. `ORDER BY Minimum_Salary ASC` – Sorts job groups from the lowest minimum salary to the highest.
+5. The subquery calculates the minimum salary for each job group, and the outer query displays the results.
+
+## New Concept
+
+### 1. MIN()
+
+`MIN()` is an aggregate function that returns the smallest value from a column.
+
+Example:
+
+```sql
+SELECT MIN(sal)
+FROM emp;
+```
+
+### 2. MIN() with GROUP BY
+
+Combining `MIN()` with `GROUP BY` finds the minimum value separately for each group.
+
+Example:
+
+```sql
+SELECT
+    job,
+    MIN(sal)
+FROM
+    emp
+GROUP BY
+    job;
+```
+
+### 3. Aggregate Functions
+
+Aggregate functions perform calculations on multiple rows.
+
+- `COUNT()` – Counts rows.
+- `SUM()` – Calculates the total.
+- `AVG()` – Calculates the average.
+- `MAX()` – Finds the maximum value.
+- `MIN()` – Finds the minimum value.
+
+### 4. Subquery and Derived Table
+
+A subquery is a query inside another query. When used in the `FROM` clause, it creates a derived table that the outer query can use.
+
+## Key Concepts
+
+- SELECT
+- MIN()
+- GROUP BY
+- ORDER BY
+- ASC
+- Aggregate Functions
+- Subquery
+- Derived Table
+- Column Aliases (AS)
+
+---
+
+
+
+
+### Q48) Display Department Numbers Having More Than Three Employees in Each Department
+
+## Problem Description
+
+Write a SQL query to display department numbers along with the total number of employees in each department.
+
+Display only those departments that have more than three employees.
+
+## Solution 1: Using GROUP BY and HAVING
+
+```sql
+SELECT
+    dept AS Department_Number,
+    COUNT(*) AS Total_Employees
+FROM
+    emp
+GROUP BY
+    dept
+HAVING
+    COUNT(*) > 3;
+```
+
+## Solution 2: Using GROUP BY, HAVING and ORDER BY
+
+```sql
+SELECT
+    dept AS Department_Number,
+    COUNT(*) AS Total_Employees
+FROM
+    emp
+GROUP BY
+    dept
+HAVING
+    COUNT(*) > 3
+ORDER BY
+    dept ASC;
+```
+
+## Solution 3: Using a Subquery
+
+```sql
+SELECT
+    Department_Number,
+    Total_Employees
+FROM
+    (
+        SELECT
+            dept AS Department_Number,
+            COUNT(*) AS Total_Employees
+        FROM
+            emp
+        GROUP BY
+            dept
+    ) AS Department_Employee_Count
+WHERE
+    Total_Employees > 3;
+```
+
+## Solution 4: Using a CTE
+
+```sql
+WITH Department_Employee_Count AS
+(
+    SELECT
+        dept AS Department_Number,
+        COUNT(*) AS Total_Employees
+    FROM
+        emp
+    GROUP BY
+        dept
+)
+SELECT
+    Department_Number,
+    Total_Employees
+FROM
+    Department_Employee_Count
+WHERE
+    Total_Employees > 3;
+```
+
+## Explanation
+
+1. `dept AS Department_Number` – Displays the department number.
+2. `COUNT(*)` – Counts the total employees in each department.
+3. `GROUP BY dept` – Groups employees according to department number.
+4. `HAVING COUNT(*) > 3` – Displays only departments having more than three employees.
+5. `ORDER BY dept ASC` – Sorts department numbers in ascending order.
+6. The subquery and CTE solutions first calculate employee counts and then filter the results using `WHERE`.
+
+## New Concept
+
+### 1. HAVING Clause
+
+`HAVING` is used to filter groups created by the `GROUP BY` clause.
+
+Example:
+
+```sql
+SELECT
+    dept,
+    COUNT(*)
+FROM
+    emp
+GROUP BY
+    dept
+HAVING
+    COUNT(*) > 3;
+```
+
+### 2. Difference Between WHERE and HAVING
+
+| WHERE | HAVING |
+|---|---|
+| Filters individual rows | Filters groups |
+| Executes before GROUP BY | Executes after GROUP BY |
+| Generally filters normal columns | Commonly filters aggregate results |
+
+### 3. Subquery
+
+A subquery is a query written inside another SQL query. It allows the outer query to use the result of the inner query.
+
+### 4. CTE (Common Table Expression)
+
+A CTE is a temporary named result set created using the `WITH` clause. It makes complex queries easier to read and maintain.
+
+## Key Concepts
+
+- SELECT
+- COUNT()
+- GROUP BY
+- HAVING
+- WHERE
+- ORDER BY
+- Subquery
+- CTE (WITH Clause)
+- Aggregate Functions
+
+---
+
+
+
+### Q49) Display Different Jobs Along with Total Salary Greater Than 40000
+
+## Problem Description
+
+Write a SQL query to display different job titles along with the total salary paid to employees in each job group.
+
+Display only those job groups where the total salary is greater than 40000.
+
+## Solution 1: Using GROUP BY and HAVING
+
+```sql
+SELECT
+    job AS Job_Title,
+    SUM(sal) AS Total_Salary
+FROM
+    emp
+GROUP BY
+    job
+HAVING
+    SUM(sal) > 40000;
+```
+
+## Solution 2: Using GROUP BY, HAVING and ORDER BY
+
+```sql
+SELECT
+    job AS Job_Title,
+    SUM(sal) AS Total_Salary
+FROM
+    emp
+GROUP BY
+    job
+HAVING
+    SUM(sal) > 40000
+ORDER BY
+    Total_Salary DESC;
+```
+
+## Solution 3: Using a Subquery
+
+```sql
+SELECT
+    Job_Title,
+    Total_Salary
+FROM
+    (
+        SELECT
+            job AS Job_Title,
+            SUM(sal) AS Total_Salary
+        FROM
+            emp
+        GROUP BY
+            job
+    ) AS Job_Salary
+WHERE
+    Total_Salary > 40000;
+```
+
+## Solution 4: Using a CTE
+
+```sql
+WITH Job_Salary AS
+(
+    SELECT
+        job AS Job_Title,
+        SUM(sal) AS Total_Salary
+    FROM
+        emp
+    GROUP BY
+        job
+)
+SELECT
+    Job_Title,
+    Total_Salary
+FROM
+    Job_Salary
+WHERE
+    Total_Salary > 40000;
+```
+
+## Explanation
+
+1. `job AS Job_Title` – Displays the employee's job title.
+2. `SUM(sal)` – Calculates the total salary for each job group.
+3. `GROUP BY job` – Groups employees according to their job title.
+4. `HAVING SUM(sal) > 40000` – Displays only job groups whose total salary exceeds 40000.
+5. `ORDER BY Total_Salary DESC` – Sorts the job groups from highest total salary to lowest.
+6. The subquery and CTE calculate job-wise salary totals first, then filter those results using `WHERE`.
+
+## Reason: Why Do We Use HAVING Instead of WHERE?
+
+We use `HAVING` instead of `WHERE` because we need to filter the result of an aggregate function (`SUM(sal)`) after grouping.
+
+### 1. WHERE Clause
+
+`WHERE` filters individual employee records before grouping.
+
+Example:
+
+```sql
+SELECT
+    job,
+    sal
+FROM
+    emp
+WHERE
+    sal > 3000;
+```
+
+Here, SQL checks each employee's salary individually and returns employees earning more than 3000.
+
+### 2. HAVING Clause
+
+`HAVING` filters grouped results after the `GROUP BY` operation.
+
+Example:
+
+```sql
+SELECT
+    job,
+    SUM(sal) AS Total_Salary
+FROM
+    emp
+GROUP BY
+    job
+HAVING
+    SUM(sal) > 40000;
+```
+
+Here:
+- First, employees are grouped by job.
+- Then, `SUM(sal)` calculates the total salary for each job.
+- Finally, `HAVING` displays only job groups with total salary greater than 40000.
+
+### 3. Can We Use WHERE and HAVING Together?
+
+Yes, both can be used in the same query.
+
+```sql
+SELECT
+    job,
+    SUM(sal) AS Total_Salary
+FROM
+    emp
+WHERE
+    sal > 2000
+GROUP BY
+    job
+HAVING
+    SUM(sal) > 40000;
+```
+
+- `WHERE sal > 2000` – Filters individual employees before grouping.
+- `GROUP BY job` – Groups employees by job title.
+- `HAVING SUM(sal) > 40000` – Filters job groups based on total salary.
+
+### 4. Difference Between WHERE and HAVING
+
+| WHERE | HAVING |
+|---|---|
+| Filters individual rows | Filters groups |
+| Executes before GROUP BY | Executes after GROUP BY |
+| Cannot directly filter aggregate results at the same query level | Can filter aggregate results |
+| Commonly used with normal columns | Commonly used with aggregate functions |
+
+### 5. SQL Logical Execution Order
+
+Remember this logical execution order:
+
+1. FROM
+2. WHERE
+3. GROUP BY
+4. HAVING
+5. SELECT
+6. ORDER BY
+
+This is why `WHERE` cannot directly filter the grouped result of `SUM(sal)`, while `HAVING` can.
+
+## New Concept
+
+### 1. HAVING with SUM()
+
+`HAVING` filters grouped results based on aggregate calculations.
+
+### 2. Comparison Operator (>)
+
+The greater-than operator checks whether a value exceeds a specified number.
+
+### 3. CTE (Common Table Expression)
+
+A CTE is a named temporary result set created using the `WITH` clause. It helps organize complex queries into readable sections.
+
+## Key Concepts
+
+- SELECT
+- SUM()
+- GROUP BY
+- HAVING
+- WHERE
+- ORDER BY
+- Comparison Operator (>)
+- Subquery
+- CTE (WITH Clause)
+- Aggregate Functions
+- SQL Logical Execution Order
+
+---
+
+
+
+### Q50) Display Different Jobs Along with Total Number of Employees in Each Job Group Having More Than Three Employees
+
+## Problem Description
+
+Write a SQL query to display different job titles along with the total number of employees working in each job group.
+
+Display only those job groups that have more than three employees.
+
+## Solution 1: Using GROUP BY and HAVING
+
+```sql
+SELECT
+    job AS Job_Title,
+    COUNT(*) AS Total_Employees
+FROM
+    emp
+GROUP BY
+    job
+HAVING
+    COUNT(*) > 3;
+```
+
+## Solution 2: Using GROUP BY, HAVING and ORDER BY
+
+```sql
+SELECT
+    job AS Job_Title,
+    COUNT(*) AS Total_Employees
+FROM
+    emp
+GROUP BY
+    job
+HAVING
+    COUNT(*) > 3
+ORDER BY
+    Total_Employees DESC;
+```
+
+## Solution 3: Using a Subquery
+
+```sql
+SELECT
+    Job_Title,
+    Total_Employees
+FROM
+    (
+        SELECT
+            job AS Job_Title,
+            COUNT(*) AS Total_Employees
+        FROM
+            emp
+        GROUP BY
+            job
+    ) AS Job_Employee_Count
+WHERE
+    Total_Employees > 3;
+```
+
+## Solution 4: Using a CTE
+
+```sql
+WITH Job_Employee_Count AS
+(
+    SELECT
+        job AS Job_Title,
+        COUNT(*) AS Total_Employees
+    FROM
+        emp
+    GROUP BY
+        job
+)
+SELECT
+    Job_Title,
+    Total_Employees
+FROM
+    Job_Employee_Count
+WHERE
+    Total_Employees > 3;
+```
+
+## Explanation
+
+1. `job AS Job_Title` – Displays the employee's job title with a readable column name.
+2. `COUNT(*)` – Counts the total number of employees in each job group.
+3. `GROUP BY job` – Groups employees according to their job title.
+4. `HAVING COUNT(*) > 3` – Displays only job groups having more than three employees.
+5. `ORDER BY Total_Employees DESC` – Sorts job groups from the highest employee count to the lowest.
+6. The subquery and CTE calculate employee counts first, then filter the results using `WHERE`.
+
+## Reason: Why Do We Use HAVING Instead of WHERE?
+
+We use `HAVING` instead of `WHERE` because `COUNT(*)` is an aggregate function, and we need to filter the grouped results.
+
+### 1. WHERE Clause
+
+`WHERE` filters individual employee records before grouping.
+
+Example:
+
+```sql
+SELECT
+    job,
+    ename
+FROM
+    emp
+WHERE
+    job = 'CLERK';
+```
+
+This returns individual employees whose job is CLERK.
+
+### 2. HAVING Clause
+
+`HAVING` filters groups after the `GROUP BY` operation.
+
+Example:
+
+```sql
+SELECT
+    job,
+    COUNT(*) AS Total_Employees
+FROM
+    emp
+GROUP BY
+    job
+HAVING
+    COUNT(*) > 3;
+```
+
+This returns only job groups containing more than three employees.
+
+### 3. Can We Use WHERE and HAVING Together?
+
+Yes. Both clauses can be used in the same query.
+
+```sql
+SELECT
+    job,
+    COUNT(*) AS Total_Employees
+FROM
+    emp
+WHERE
+    sal > 2000
+GROUP BY
+    job
+HAVING
+    COUNT(*) > 3;
+```
+
+- `WHERE sal > 2000` – Filters individual employees before grouping.
+- `GROUP BY job` – Groups employees according to their job title.
+- `HAVING COUNT(*) > 3` – Displays only groups containing more than three qualifying employees.
+
+### 4. Difference Between WHERE and HAVING
+
+| WHERE | HAVING |
+|---|---|
+| Filters individual rows | Filters groups |
+| Executes before GROUP BY | Executes after GROUP BY |
+| Filters individual column values | Commonly filters aggregate results |
+| Cannot directly filter aggregate results at the same query level | Can filter COUNT(), SUM(), AVG(), etc. |
+
+### 5. SQL Logical Execution Order
+
+1. FROM
+2. WHERE
+3. GROUP BY
+4. HAVING
+5. SELECT
+6. ORDER BY
+
+## New Concept
+
+### 1. COUNT()
+
+`COUNT(*)` counts all rows in a table or within each group.
+
+### 2. HAVING with COUNT()
+
+`HAVING` can filter groups based on the result of `COUNT()`.
+
+Example:
+
+```sql
+HAVING COUNT(*) > 3;
+```
+
+### 3. Comparison Operator (>)
+
+The greater-than operator checks whether a value is greater than a specified number.
+
+### 4. Subquery
+
+A subquery is a query written inside another SQL query.
+
+### 5. CTE (Common Table Expression)
+
+A CTE is a named temporary result set created using the `WITH` clause.
+
+## Key Concepts
+
+- SELECT
+- COUNT()
+- GROUP BY
+- HAVING
+- WHERE
+- ORDER BY
+- Comparison Operator (>)
+- Subquery
+- CTE (WITH Clause)
+- Aggregate Functions
+- SQL Logical Execution Order
+
+---
+
+
+
+
+### Q51) Display the Name of the Employee Who Earns the Highest Salary
+
+## Problem Description
+
+Write a SQL query to display the name of the employee who earns the highest salary in the company.
+
+If multiple employees earn the same highest salary, display all of their names.
+
+## Solution 1: Using a Subquery
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    sal = (
+        SELECT
+            MAX(sal)
+        FROM
+            emp
+    );
+```
+
+## Solution 2: Using ORDER BY and LIMIT
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+ORDER BY
+    sal DESC
+LIMIT 1;
+```
+
+Note: This returns only one employee. If multiple employees share the highest salary, it does not guarantee that all of them will be displayed.
+
+## Solution 3: Using a CTE
+
+```sql
+WITH Maximum_Salary AS
+(
+    SELECT
+        MAX(sal) AS Highest_Salary
+    FROM
+        emp
+)
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    sal = (
+        SELECT
+            Highest_Salary
+        FROM
+            Maximum_Salary
+    );
+```
+
+## Solution 4: Using JOIN with a Subquery
+
+```sql
+SELECT
+    e.ename AS Employee_Name
+FROM
+    emp e
+INNER JOIN
+    (
+        SELECT
+            MAX(sal) AS Highest_Salary
+        FROM
+            emp
+    ) AS m
+ON
+    e.sal = m.Highest_Salary;
+```
+
+## Explanation
+
+1. `MAX(sal)` – Finds the highest salary from the employee table.
+2. The inner query calculates the maximum salary.
+3. `WHERE sal = (...)` – Matches employee salaries with the highest salary returned by the subquery.
+4. `ORDER BY sal DESC` – Sorts employees from highest salary to lowest.
+5. `LIMIT 1` – Returns only the first row.
+6. The CTE stores the highest salary in a named result set.
+7. The JOIN solution matches employees with the maximum salary.
+
+## Reason: Why Don't We Use MAX() Directly in WHERE?
+
+We cannot directly write the following query:
+
+```sql
+SELECT
+    ename
+FROM
+    emp
+WHERE
+    sal = MAX(sal);
+```
+
+The reason is that `MAX()` is an aggregate function. It calculates a result across multiple rows, whereas `WHERE` filters individual rows.
+
+To solve this, we use a subquery to calculate the maximum salary first.
+
+Correct approach:
+
+```sql
+SELECT
+    ename
+FROM
+    emp
+WHERE
+    sal = (
+        SELECT MAX(sal)
+        FROM emp
+    );
+```
+
+The inner query finds the highest salary, and the outer query finds employees earning that salary.
+
+## New Concept
+
+### 1. MAX()
+
+`MAX()` is an aggregate function that returns the highest value from a column.
+
+Example:
+
+```sql
+SELECT MAX(sal)
+FROM emp;
+```
+
+### 2. Subquery
+
+A subquery is a query written inside another SQL query.
+
+In this example, the inner query finds the highest salary, and the outer query displays the matching employee names.
+
+### 3. ORDER BY DESC
+
+`ORDER BY DESC` sorts records from highest to lowest.
+
+```sql
+ORDER BY sal DESC;
+```
+
+### 4. LIMIT
+
+`LIMIT` restricts the number of rows returned by a query.
+
+```sql
+LIMIT 1;
+```
+
+It returns only one row.
+
+### 5. CTE (Common Table Expression)
+
+A CTE is a named temporary result set created using the `WITH` clause.
+
+### 6. JOIN with Subquery
+
+A subquery can be used as a temporary table and joined with another table to match records.
+
+## Key Concepts
+
+- SELECT
+- MAX()
+- WHERE
+- Subquery
+- ORDER BY
+- DESC
+- LIMIT
+- CTE (WITH Clause)
+- INNER JOIN
+- Aggregate Functions
+
+---
+
+
+
+### Q52) Display the employee number and name of the employee working as CLERK and earning the highest salary among all CLERKS.
+
+## Problem Description
+
+Write a SQL query to display the employee number and employee name of the employee who earns the highest salary among employees working as CLERK.
+
+Table: `emp`
+
+Required Columns:
+- `emp_no` – Employee Number
+- `ename` – Employee Name
+- `job` – Job Title
+- `sal` – Salary
+
+## Solution 1: Using ORDER BY and LIMIT
+
+```sql
+SELECT
+    emp_no AS Employee_Number,
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    job = 'CLERK'
+ORDER BY
+    sal DESC
+LIMIT 1;
+```
+
+## Solution 2: Using Subquery with MAX()
+
+```sql
+SELECT
+    emp_no AS Employee_Number,
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    job = 'CLERK'
+AND
+    sal = (
+        SELECT
+            MAX(sal)
+        FROM
+            emp
+        WHERE
+            job = 'CLERK'
+    );
+```
+
+## Explanation
+
+### Solution 1: ORDER BY and LIMIT
+
+1. `WHERE job = 'CLERK'` filters employees working as clerks.
+2. `ORDER BY sal DESC` sorts their salaries from highest to lowest.
+3. `LIMIT 1` returns only the employee with the highest salary.
+
+### Solution 2: Subquery with MAX()
+
+1. The inner query finds the maximum salary among clerks using `MAX(sal)`.
+2. The inner query filters records using `WHERE job = 'CLERK'`.
+3. The outer query selects employees whose job is CLERK.
+4. The `AND` condition matches their salary with the maximum clerk salary.
+5. The final result displays the employee number and employee name.
+
+## New Concept
+
+### 1. MAX()
+
+The `MAX()` function returns the highest value from a column.
+
+```sql
+SELECT MAX(sal)
+FROM emp;
+```
+
+### 2. ORDER BY DESC
+
+Sorts records in descending order, from highest to lowest.
+
+```sql
+SELECT *
+FROM emp
+ORDER BY sal DESC;
+```
+
+### 3. LIMIT
+
+Restricts the number of rows returned by a query.
+
+```sql
+SELECT *
+FROM emp
+LIMIT 1;
+```
+
+### 4. Subquery
+
+A subquery is a query written inside another SQL query.
+
+Here, the inner query calculates the highest salary among clerks, and the outer query retrieves the matching employee details.
+
+## Key Concepts
+
+- WHERE
+- AND
+- MAX()
+- ORDER BY
+- DESC
+- LIMIT
+- Subquery
+- Aggregate Functions
+
+## Important Note
+
+- `ORDER BY sal DESC LIMIT 1` returns only one employee, even if multiple clerks share the highest salary.
+- The `MAX()` subquery solution returns all employees who share the highest clerk salary.
+- Always apply `WHERE job = 'CLERK'` inside the subquery so that the maximum salary is calculated only among clerks.
+
+---
+
+
+### Q53) Display the names of salesmen who earn a salary greater than the highest salary earned by any clerk.
+
+## Problem Description
+
+Write a SQL query to display the names of employees working as SALESMAN whose salary is greater than the highest salary earned by any employee working as CLERK.
+
+Table: `emp`
+
+Required Columns:
+- `ename` – Employee Name
+- `job` – Job Title
+- `sal` – Salary
+
+## Solution 1: Using Subquery with MAX()
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    job = 'SALESMAN'
+AND
+    sal > (
+        SELECT
+            MAX(sal)
+        FROM
+            emp
+        WHERE
+            job = 'CLERK'
+    );
+```
+
+## Solution 2: Using CTE
+
+```sql
+WITH Highest_Clerk_Salary AS (
+    SELECT
+        MAX(sal) AS Maximum_Salary
+    FROM
+        emp
+    WHERE
+        job = 'CLERK'
+)
+SELECT
+    e.ename AS Employee_Name
+FROM
+    emp e
+CROSS JOIN
+    Highest_Clerk_Salary h
+WHERE
+    e.job = 'SALESMAN'
+AND
+    e.sal > h.Maximum_Salary;
+```
+
+## Solution 3: Using ALL Operator
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    job = 'SALESMAN'
+AND
+    sal > ALL (
+        SELECT
+            sal
+        FROM
+            emp
+        WHERE
+            job = 'CLERK'
+    );
+```
+
+## Explanation
+
+### Solution 1: Subquery with MAX()
+
+1. The inner query executes first.
+2. `MAX(sal)` finds the highest salary among employees working as CLERK.
+3. The outer query filters employees working as SALESMAN.
+4. The `AND` condition checks whether the salesman's salary is greater than the highest clerk salary.
+5. Finally, the employee names satisfying both conditions are displayed.
+
+### Solution 2: Using CTE
+
+1. The CTE calculates the highest clerk salary.
+2. `CROSS JOIN` combines the CTE result with employee records.
+3. The `WHERE` clause filters salesmen.
+4. The salary comparison returns salesmen earning more than the maximum clerk salary.
+
+### Solution 3: Using ALL Operator
+
+1. The inner query retrieves all clerk salaries.
+2. `ALL` checks whether the salesman's salary is greater than every salary returned by the subquery.
+3. Only salesmen satisfying this condition are displayed.
+
+## New Concept
+
+### 1. MAX()
+
+Returns the highest value from a column.
+
+```sql
+SELECT MAX(sal)
+FROM emp
+WHERE job = 'CLERK';
+```
+
+### 2. ALL Operator
+
+The `ALL` operator compares a value against every value returned by a subquery.
+
+```sql
+SELECT ename
+FROM emp
+WHERE sal > ALL (
+    SELECT sal
+    FROM emp
+    WHERE job = 'CLERK'
+);
+```
+
+### 3. CTE (Common Table Expression)
+
+A CTE creates a temporary named result using the `WITH` keyword. It can be referenced by the main query.
+
+```sql
+WITH Highest_Salary AS (
+    SELECT MAX(sal) AS Maximum_Salary
+    FROM emp
+)
+SELECT *
+FROM Highest_Salary;
+```
+
+### 4. CROSS JOIN
+
+Combines every row from the first table or result with every row from the second table or result.
+
+## Key Concepts
+
+- WHERE
+- AND
+- MAX()
+- Greater Than (`>`)
+- Subquery
+- ALL Operator
+- CTE
+- WITH
+- CROSS JOIN
+
+## Important Note
+
+The main subquery solution uses `MAX(sal)` to find the highest clerk salary. The `ALL` solution checks the salesman's salary against every clerk salary.
+
+All three solutions are equivalent when the clerk subquery returns at least one non-NULL salary. If there are no clerks, the `MAX()` approach returns NULL and the `ALL` approach over an empty result behaves differently.
+
+Recommended solution: Solution 1, because it is simple, readable, and directly solves the problem.
+
+---
+
+
+### Q54) Display the names of employees working as CLERK whose salary is greater than the salary of JAMES but less than the salary of SCOTT.
+
+## Problem Description
+
+Write a SQL query to display the names of employees working as CLERK whose salary is greater than JAMES's salary but less than SCOTT's salary.
+
+Table: `emp`
+
+Required Columns:
+- `ename` – Employee Name
+- `job` – Job Title
+- `sal` – Salary
+
+## Solution 1: Using Subqueries with Comparison Operators
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    job = 'CLERK'
+AND
+    sal > (
+        SELECT
+            sal
+        FROM
+            emp
+        WHERE
+            ename = 'JAMES'
+    )
+AND
+    sal < (
+        SELECT
+            sal
+        FROM
+            emp
+        WHERE
+            ename = 'SCOTT'
+    );
+```
+
+## Solution 2: Using BETWEEN with Subqueries
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    job = 'CLERK'
+AND
+    sal BETWEEN
+        (SELECT sal FROM emp WHERE ename = 'JAMES')
+    AND
+        (SELECT sal FROM emp WHERE ename = 'SCOTT');
+```
+
+## Explanation
+
+### Solution 1: Using Subqueries
+
+1. The first subquery finds the salary of JAMES.
+2. The second subquery finds the salary of SCOTT.
+3. `WHERE job = 'CLERK'` filters employees working as clerks.
+4. `sal >` checks whether the clerk's salary is greater than JAMES's salary.
+5. `sal <` checks whether the clerk's salary is less than SCOTT's salary.
+6. The final result displays the names of employees satisfying all three conditions.
+
+### Solution 2: Using BETWEEN
+
+1. The first subquery retrieves JAMES's salary.
+2. The second subquery retrieves SCOTT's salary.
+3. `BETWEEN` checks whether the clerk's salary falls within the specified salary range.
+
+Important: `BETWEEN` includes both boundary values, while the original question requires strictly greater than and strictly less than.
+
+## New Concept
+
+### 1. Comparison Operators
+
+Comparison operators compare two values.
+
+| Operator | Meaning |
+|---|---|
+| `>` | Greater than |
+| `<` | Less than |
+| `>=` | Greater than or equal to |
+| `<=` | Less than or equal to |
+| `=` | Equal to |
+| `!=` or `<>` | Not equal to |
+
+### 2. Subquery
+
+A subquery is a query written inside another SQL query.
+
+Here, two subqueries are used:
+- One retrieves JAMES's salary.
+- Another retrieves SCOTT's salary.
+
+### 3. BETWEEN Operator
+
+The `BETWEEN` operator checks whether a value falls within a specified range. Both boundary values are included.
+
+```sql
+SELECT *
+FROM emp
+WHERE sal BETWEEN 1000 AND 3000;
+```
+
+This includes salaries of 1000 and 3000.
+
+## Key Concepts
+
+- WHERE
+- AND
+- Comparison Operators
+- Greater Than (`>`)
+- Less Than (`<`)
+- BETWEEN
+- Subquery
+- Scalar Subquery
+
+## Important Note
+
+Use Solution 1 for this question because it uses strict greater-than and less-than conditions.
+
+The `BETWEEN` solution is not exactly equivalent because it includes the boundary salaries.
+
+---
+
+
+### Q55) Display the names of employees whose salary is greater than the salary of JAMES or greater than the salary of SCOTT.
+
+## Problem Description
+
+Write a SQL query to display the names of employees whose salary is greater than JAMES's salary or greater than SCOTT's salary.
+
+Table: `emp`
+
+Required Columns:
+- `ename` – Employee Name
+- `sal` – Salary
+
+## Solution 1: Using Subqueries with OR Operator
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    sal > (
+        SELECT
+            sal
+        FROM
+            emp
+        WHERE
+            ename = 'JAMES'
+    )
+OR
+    sal > (
+        SELECT
+            sal
+        FROM
+            emp
+        WHERE
+            ename = 'SCOTT'
+    );
+```
+
+## Solution 2: Using ANY Operator
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    sal > ANY (
+        SELECT
+            sal
+        FROM
+            emp
+        WHERE
+            ename IN ('JAMES', 'SCOTT')
+    );
+```
+
+## Explanation
+
+### Solution 1: Using Subqueries with OR
+
+1. The first subquery retrieves the salary of JAMES.
+2. The second subquery retrieves the salary of SCOTT.
+3. The first condition checks whether an employee earns more than JAMES.
+4. The `OR` operator checks whether an employee earns more than SCOTT.
+5. If either condition is true, the employee's name is displayed.
+
+### Solution 2: Using ANY Operator
+
+1. The inner query retrieves the salaries of JAMES and SCOTT.
+2. The `ANY` operator compares an employee's salary against the returned salaries.
+3. The condition `sal > ANY (...)` is true if the employee earns more than at least one of those salaries.
+
+## New Concept
+
+### 1. OR Operator
+
+The `OR` operator returns records when at least one condition is true.
+
+```sql
+SELECT *
+FROM emp
+WHERE job = 'CLERK'
+OR job = 'SALESMAN';
+```
+
+### 2. ANY Operator
+
+The `ANY` operator compares a value with any value returned by a subquery.
+
+```sql
+SELECT *
+FROM emp
+WHERE sal > ANY (
+    SELECT sal
+    FROM emp
+    WHERE job = 'CLERK'
+);
+```
+
+It returns employees whose salary is greater than at least one clerk's salary.
+
+### 3. IN Operator
+
+The `IN` operator checks whether a value matches any value in a given list.
+
+```sql
+SELECT *
+FROM emp
+WHERE ename IN ('JAMES', 'SCOTT');
+```
+
+## Key Concepts
+
+- WHERE
+- OR
+- Subquery
+- ANY Operator
+- IN Operator
+- Comparison Operator (`>`)
+- Scalar Subquery
+
+## Important Note
+
+The `OR` condition means an employee must earn more than JAMES or more than SCOTT.
+
+The `ANY` solution provides equivalent logic when both employees exist and their salaries are non-NULL.
+
+---
+
+### Q56) Display the names of employees who earn the highest salary in their respective departments.
+
+## Problem Description
+
+Write a SQL query to display the names of employees who earn the highest salary in each department.
+
+Table: `emp`
+
+Required Columns:
+- `ename` – Employee Name
+- `dept` – Department Number
+- `sal` – Salary
+
+## Solution 1: Using Correlated Subquery
+
+```sql
+SELECT
+    e.ename AS Employee_Name,
+    e.dept AS Department_Number,
+    e.sal AS Salary
+FROM
+    emp e
+WHERE
+    e.sal = (
+        SELECT
+            MAX(sal)
+        FROM
+            emp
+        WHERE
+            dept = e.dept
+    );
+```
+
+## Solution 2: Using GROUP BY and IN
+
+```sql
+SELECT
+    ename AS Employee_Name,
+    dept AS Department_Number,
+    sal AS Salary
+FROM
+    emp
+WHERE
+    (dept, sal) IN (
+        SELECT
+            dept,
+            MAX(sal)
+        FROM
+            emp
+        GROUP BY
+            dept
+    );
+```
+
+## Solution 3: Using JOIN with Subquery
+
+```sql
+SELECT
+    e.ename AS Employee_Name,
+    e.dept AS Department_Number,
+    e.sal AS Salary
+FROM
+    emp e
+INNER JOIN
+    (
+        SELECT
+            dept,
+            MAX(sal) AS Highest_Salary
+        FROM
+            emp
+        GROUP BY
+            dept
+    ) AS d
+ON
+    e.dept = d.dept
+AND
+    e.sal = d.Highest_Salary;
+```
+
+## Explanation
+
+### Solution 1: Correlated Subquery
+
+1. The outer query selects employee details from the `emp` table.
+2. The inner query calculates the maximum salary using `MAX(sal)`.
+3. The condition `dept = e.dept` matches the inner query's department with the current employee's department.
+4. The outer query compares the employee's salary with the maximum salary of their department.
+5. Employees whose salaries match their department's maximum salary are displayed.
+
+### Solution 2: GROUP BY and IN
+
+1. The inner query groups employees by department.
+2. `MAX(sal)` calculates the highest salary for each department.
+3. The outer query uses `IN` to match the department and salary pairs.
+4. Matching employees are displayed.
+
+### Solution 3: JOIN with Subquery
+
+1. The subquery calculates the highest salary for each department.
+2. `GROUP BY dept` creates department-wise groups.
+3. `INNER JOIN` combines the employee records with the department-wise maximum salary results.
+4. The `ON` condition matches both department number and highest salary.
+5. The final query displays employees earning the highest salary in their departments.
+
+## New Concept
+
+### 1. Correlated Subquery
+
+A correlated subquery is a subquery that depends on the outer query.
+
+It uses a column from the outer query to perform its calculation.
+
+```sql
+SELECT
+    e.ename,
+    e.dept,
+    e.sal
+FROM
+    emp e
+WHERE
+    e.sal = (
+        SELECT MAX(sal)
+        FROM emp
+        WHERE dept = e.dept
+    );
+```
+
+Here, `e.dept` belongs to the outer query. The inner query uses it to calculate the maximum salary for the current employee's department.
+
+### 2. GROUP BY
+
+The `GROUP BY` clause groups rows that have the same value.
+
+```sql
+SELECT
+    dept,
+    MAX(sal)
+FROM
+    emp
+GROUP BY
+    dept;
+```
+
+This calculates the highest salary separately for each department.
+
+### 3. IN Operator
+
+The `IN` operator checks whether a value matches any value in a list or subquery result.
+
+### 4. INNER JOIN
+
+`INNER JOIN` combines matching records from two tables or query results based on a specified condition.
+
+### 5. Composite Comparison
+
+MySQL supports comparing multiple columns together.
+
+```sql
+WHERE (dept, sal) IN (
+    SELECT dept, MAX(sal)
+    FROM emp
+    GROUP BY dept
+);
+```
+
+Here, both the department number and salary must match.
+
+## Key Concepts
+
+- MAX()
+- GROUP BY
+- Correlated Subquery
+- IN Operator
+- INNER JOIN
+- Subquery
+- Table Aliases
+- Composite Comparison
+
+## Important Note
+
+- A normal subquery can calculate the maximum salary for the entire company.
+- A correlated subquery calculates the maximum salary for the current employee's department.
+- The `IN` and `JOIN` solutions also match employees with their respective department's maximum salary.
+- All three solutions return multiple employees if employees share the highest salary in a department.
+
+Recommended solution: Solution 1, using a Correlated Subquery, because it clearly demonstrates how to calculate and compare values department-wise.
+
+## 6. Remember This Important Concept
+
+Whenever a question contains requirements such as:
+
+- Highest salary in each department.
+- Lowest salary in each department.
+- Employees earning more than their department's average salary.
+- Employees earning more than their manager.
+- Employees earning more than the average salary of their job group.
+
+A correlated subquery can be a useful approach.
+
+### The Formula to Remember
+
+```sql
+SELECT *
+FROM emp e
+WHERE e.sal = (
+    SELECT MAX(sal)
+    FROM emp
+    WHERE dept = e.dept
+);
+```
+
+The inner query refers to `e.dept` from the outer query.
+
+This makes the subquery correlated because it depends on the current employee's department from the outer query.
+
+
+### Q57) Display the names of employees who earn the highest salaries in their respective job groups.
+
+## Problem Description
+
+Write a SQL query to display the employee names, job titles, and salaries of employees who earn the highest salary within their respective job groups.
+
+For example:
+- Find the highest salary among CLERK employees.
+- Find the highest salary among SALESMAN employees.
+- Find the highest salary among MANAGER employees.
+- Display employees whose salary matches the highest salary in their job group.
+
+## Solution 1: Using Correlated Subquery
+
+```sql
+SELECT
+    e.ename AS Employee_Name,
+    e.job AS Job_Title,
+    e.sal AS Salary
+FROM
+    emp e
+WHERE
+    e.sal = (
+        SELECT
+            MAX(sal)
+        FROM
+            emp
+        WHERE
+            job = e.job
+    );
+```
+
+## Explanation
+
+1. The outer query selects the employee name, job title, and salary.
+2. The inner query calculates the maximum salary using `MAX(sal)`.
+3. The condition `job = e.job` finds the maximum salary for the current employee's job group.
+4. The outer query compares each employee's salary with the maximum salary of their job group.
+5. If both salaries match, that employee is displayed.
+
+## Solution 2: Using JOIN with a Subquery
+
+```sql
+SELECT
+    e.ename AS Employee_Name,
+    e.job AS Job_Title,
+    e.sal AS Salary
+FROM
+    emp e
+INNER JOIN
+    (
+        SELECT
+            job,
+            MAX(sal) AS Highest_Salary
+        FROM
+            emp
+        GROUP BY
+            job
+    ) AS j
+ON
+    e.job = j.job
+AND
+    e.sal = j.Highest_Salary;
+```
+
+### Explanation
+
+1. The inner query groups employees by their job title.
+2. `MAX(sal)` calculates the highest salary for each job group.
+3. The subquery returns each job title along with its highest salary.
+4. `INNER JOIN` matches the original employee records with these maximum salaries.
+5. Only employees whose salary matches their job group's highest salary are displayed.
+
+## Solution 3: Using CTE (Common Table Expression)
+
+```sql
+WITH Job_Group_Salary AS (
+    SELECT
+        job,
+        MAX(sal) AS Highest_Salary
+    FROM
+        emp
+    GROUP BY
+        job
+)
+SELECT
+    e.ename AS Employee_Name,
+    e.job AS Job_Title,
+    e.sal AS Salary
+FROM
+    emp e
+INNER JOIN
+    Job_Group_Salary j
+ON
+    e.job = j.job
+AND
+    e.sal = j.Highest_Salary;
+```
+
+## New Concept: Correlated Subquery
+
+A correlated subquery is a subquery that depends on a value from the outer query.
+
+In this question:
+
+```sql
+WHERE job = e.job
+```
+
+- `e.job` belongs to the outer query.
+- `job` belongs to the inner query.
+- The inner query uses the current employee's job title to calculate the highest salary for that job group.
+
+Therefore, the inner query is correlated with the outer query.
+
+## New Concept: GROUP BY
+
+`GROUP BY` combines rows having the same value into groups.
+
+Example:
+
+```sql
+SELECT
+    job,
+    MAX(sal) AS Highest_Salary
+FROM
+    emp
+GROUP BY
+    job;
+```
+
+This query calculates the highest salary separately for each job group.
+
+## New Concept: JOIN with a Subquery
+
+A subquery can be used as a temporary result set and joined with another table.
+
+In this question:
+- The subquery calculates the highest salary for each job group.
+- The `INNER JOIN` matches employees with their respective job group's highest salary.
+
+## Important Concept to Remember
+
+When a question contains requirements such as:
+
+- Highest salary in each job group.
+- Lowest salary in each job group.
+- Highest salary in each department.
+- Employees earning more than the average salary of their job group.
+
+A correlated subquery can be a useful approach.
+
+### Formula to Remember
+
+```sql
+SELECT *
+FROM emp e
+WHERE e.sal = (
+    SELECT MAX(sal)
+    FROM emp
+    WHERE job = e.job
+);
+```
+
+The inner query refers to `e.job` from the outer query.
+
+## Key Concepts
+
+- `MAX()` – Returns the maximum value.
+- `GROUP BY` – Groups rows having the same value.
+- Correlated Subquery – A subquery that depends on the outer query.
+- `INNER JOIN` – Combines matching records from two result sets.
+- `CTE` – Creates a temporary named result set using `WITH`.
+
+---
+
+
+### Q58) Display the names of employees who are working in the ACCOUNTING department.
+
+## Problem Description
+
+Write a SQL query to display the names of employees who are working in the ACCOUNTING department.
+
+Table: `Employee`
+
+Columns:
+- `Employee_Name` – Name of the employee.
+- `Department` – Department name.
+
+## Solution
+
+```sql
+SELECT
+    Employee_Name
+FROM
+    Employee
+WHERE
+    Department = 'ACCOUNTING';
+```
+
+## Explanation
+
+1. `SELECT Employee_Name` retrieves the employee names.
+2. `FROM Employee` specifies the table from which data is retrieved.
+3. `WHERE Department = 'ACCOUNTING'` filters employees who belong to the ACCOUNTING department.
+4. Only the names of matching employees are displayed.
+
+## New Concept: WHERE Clause with Text Values
+
+The `WHERE` clause filters records based on a specified condition.
+
+When comparing text values, use single quotation marks (`' '`).
+
+Example:
+
+```sql
+SELECT
+    Employee_Name
+FROM
+    Employee
+WHERE
+    Department = 'ACCOUNTING';
+```
+
+Here, SQL returns only employees whose department value is `ACCOUNTING`.
+
+## Key Concepts
+
+- `SELECT` – Retrieves specified columns.
+- `FROM` – Specifies the table.
+- `WHERE` – Filters records based on a condition.
+- Single Quotes – Used for text values in SQL conditions.
+
+---
+
+
+### Q59) Display the names of employees who are working in CHICAGO.
+
+## Problem Description
+
+Write a SQL query to display the names of employees who are working in the department located in CHICAGO.
+
+Tables:
+
+1. `emp` – Contains employee information.
+2. `dept` – Contains department information.
+
+Important Columns:
+
+| Table | Column | Description |
+|---|---|---|
+| emp | ename | Employee Name |
+| emp | deptno | Department Number |
+| dept | deptno | Department Number |
+| dept | loc | Department Location |
+
+## Solution 1: Using Subquery
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    deptno = (
+        SELECT
+            deptno
+        FROM
+            dept
+        WHERE
+            loc = 'CHICAGO'
+    );
+```
+
+## Explanation
+
+This query contains two parts.
+
+### 1. Inner Query
+
+```sql
+SELECT
+    deptno
+FROM
+    dept
+WHERE
+    loc = 'CHICAGO';
+```
+
+- The inner query searches the `dept` table.
+- `WHERE loc = 'CHICAGO'` finds the department located in CHICAGO.
+- `SELECT deptno` returns the department number.
+
+Example result:
+
+| deptno |
+|---:|
+| 30 |
+
+### 2. Outer Query
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    deptno = 30;
+```
+
+- The outer query searches the `emp` table.
+- It finds employees whose department number matches the result of the inner query.
+- Finally, it displays their names.
+
+## Solution 2: Using IN Operator
+
+```sql
+SELECT
+    ename AS Employee_Name
+FROM
+    emp
+WHERE
+    deptno IN (
+        SELECT
+            deptno
+        FROM
+            dept
+        WHERE
+            loc = 'CHICAGO'
+    );
+```
+
+This approach is useful when the inner query can return multiple department numbers.
+
+## Solution 3: Using INNER JOIN
+
+```sql
+SELECT
+    e.ename AS Employee_Name
+FROM
+    emp e
+INNER JOIN
+    dept d
+ON
+    e.deptno = d.deptno
+WHERE
+    d.loc = 'CHICAGO';
+```
+
+### Explanation
+
+1. `emp e` represents the Employee table.
+2. `dept d` represents the Department table.
+3. `INNER JOIN` connects the two tables.
+4. `ON e.deptno = d.deptno` matches employees with their departments.
+5. `WHERE d.loc = 'CHICAGO'` filters departments located in CHICAGO.
+
+## New Concept: Subquery
+
+A subquery is a query written inside another SQL query.
+
+In this question:
+- The inner query finds the department number of CHICAGO.
+- The outer query uses that department number to find employee names.
+
+## New Concept: Single-Row Subquery
+
+A single-row subquery returns only one value.
+
+Example:
+
+```sql
+WHERE deptno = (
+    SELECT deptno
+    FROM dept
+    WHERE loc = 'CHICAGO'
+);
+```
+
+The `=` operator expects the subquery to return one value.
+
+If the inner query returns multiple department numbers, use `IN` instead of `=`.
+
+## New Concept: IN Operator
+
+The `IN` operator checks whether a value matches any value in a list or subquery result.
+
+Example:
+
+```sql
+WHERE deptno IN (10, 20, 30);
+```
+
+It is useful when a subquery can return multiple rows.
+
+## Important Concept to Remember
+
+| Operator | Purpose |
+|---|---|
+| `=` | Used when a subquery returns one value |
+| `IN` | Used when a subquery can return multiple values |
+
+## Key Concepts
+
+- `SELECT` – Retrieves specified columns.
+- `WHERE` – Filters records based on a condition.
+- `Subquery` – A query inside another query.
+- `Single-Row Subquery` – Returns one value.
+- `IN` – Checks against multiple possible values.
+- `INNER JOIN` – Combines matching records from two tables.
+- `ON` – Specifies the matching condition between tables.
+
+---
+
+
+### Q60) Display the job groups having total salary greater than the maximum salary earned by any manager.
+
+## Problem Description
+
+Write a SQL query to display the job groups whose total salary is greater than the highest individual salary earned by any employee working as a MANAGER.
+
+Requirements:
+
+1. Calculate the total salary for each job group.
+2. Find the maximum salary among employees working as MANAGER.
+3. Display only those job groups whose total salary is greater than the maximum manager salary.
+
+## Solution 1: Using Subquery
+
+```sql
+SELECT
+    Job_Title,
+    SUM(Salary) AS Total_Salary
+FROM
+    Employee
+GROUP BY
+    Job_Title
+HAVING
+    SUM(Salary) > (
+        SELECT
+            MAX(Salary)
+        FROM
+            Employee
+        WHERE
+            Job_Title = 'MANAGER'
+    );
+```
+
+## Explanation
+
+This query contains two parts.
+
+### 1. Inner Query – Find Maximum Manager Salary
+
+```sql
+SELECT
+    MAX(Salary)
+FROM
+    Employee
+WHERE
+    Job_Title = 'MANAGER';
+```
+
+Explanation:
+
+- `WHERE Job_Title = 'MANAGER'` filters only managers.
+- `MAX(Salary)` finds the highest salary among managers.
+- The inner query returns one value.
+
+Example:
+
+| Job_Title | Salary |
+|---|---:|
+| MANAGER | 5000 |
+| MANAGER | 4000 |
+| MANAGER | 2975 |
+
+Result:
+
+```sql
+5000
+```
+
+### 2. Outer Query – Calculate Total Salary for Each Job Group
+
+```sql
+SELECT
+    Job_Title,
+    SUM(Salary) AS Total_Salary
+FROM
+    Employee
+GROUP BY
+    Job_Title;
+```
+
+Explanation:
+
+- `GROUP BY Job_Title` creates separate groups for each job title.
+- `SUM(Salary)` calculates the total salary for each job group.
+
+### 3. HAVING – Compare Total Salary
+
+```sql
+HAVING
+    SUM(Salary) > (
+        SELECT MAX(Salary)
+        FROM Employee
+        WHERE Job_Title = 'MANAGER'
+    );
+```
+
+The HAVING clause compares each job group's total salary with the maximum manager salary.
+
+Only job groups whose total salary is greater than the maximum manager salary are displayed.
+
+## Solution 2: Using CTE (Common Table Expression)
+
+```sql
+WITH Manager_Maximum_Salary AS (
+    SELECT
+        MAX(Salary) AS Maximum_Salary
+    FROM
+        Employee
+    WHERE
+        Job_Title = 'MANAGER'
+)
+SELECT
+    e.Job_Title,
+    SUM(e.Salary) AS Total_Salary
+FROM
+    Employee e
+CROSS JOIN
+    Manager_Maximum_Salary m
+GROUP BY
+    e.Job_Title,
+    m.Maximum_Salary
+HAVING
+    SUM(e.Salary) > m.Maximum_Salary;
+```
+
+Explanation:
+
+1. The CTE calculates the maximum salary among managers.
+2. `CROSS JOIN` makes that single maximum salary available to each job group.
+3. `GROUP BY` calculates the total salary for each job group.
+4. `HAVING` filters groups whose total salary is greater than the manager's maximum salary.
+
+## Solution 3: Using Derived Table
+
+```sql
+SELECT
+    j.Job_Title,
+    j.Total_Salary
+FROM
+    (
+        SELECT
+            Job_Title,
+            SUM(Salary) AS Total_Salary
+        FROM
+            Employee
+        GROUP BY
+            Job_Title
+    ) AS j
+WHERE
+    j.Total_Salary > (
+        SELECT
+            MAX(Salary)
+        FROM
+            Employee
+        WHERE
+            Job_Title = 'MANAGER'
+    );
+```
+
+Explanation:
+
+1. The inner derived table calculates the total salary for each job group.
+2. The outer query compares each group's total salary with the maximum manager salary.
+3. Only matching job groups are displayed.
+
+## New Concept: Aggregate Functions
+
+Aggregate functions perform calculations on multiple rows and return a single result for each group or for the entire result set.
+
+| Function | Purpose |
+|---|---|
+| `SUM()` | Calculates the total |
+| `MAX()` | Finds the maximum value |
+| `MIN()` | Finds the minimum value |
+| `AVG()` | Calculates the average |
+| `COUNT()` | Counts rows |
+
+## New Concept: GROUP BY with HAVING
+
+`GROUP BY` creates groups based on a column, while `HAVING` filters those groups after aggregation.
+
+Example:
+
+```sql
+SELECT
+    Job_Title,
+    SUM(Salary) AS Total_Salary
+FROM
+    Employee
+GROUP BY
+    Job_Title
+HAVING
+    SUM(Salary) > 40000;
+```
+
+This query displays job groups whose total salary is greater than 40000.
+
+## New Concept: Subquery with MAX()
+
+A subquery can calculate a value that is used for comparison in the outer query.
+
+Example:
+
+```sql
+SELECT
+    MAX(Salary)
+FROM
+    Employee
+WHERE
+    Job_Title = 'MANAGER';
+```
+
+Here, the subquery finds the highest salary among managers, which can then be compared with other values.
+
+## Important Concept to Remember
+
+When a question asks for:
+
+- Total salary of each job group greater than the highest manager salary.
+- Total employees in each department greater than a particular count.
+- Average salary of each department greater than a specified amount.
+
+Remember this general structure:
+
+```sql
+SELECT
+    Group_Column,
+    SUM(Amount_Column)
+FROM
+    Table_Name
+GROUP BY
+    Group_Column
+HAVING
+    SUM(Amount_Column) > (
+        SELECT
+            MAX(Amount_Column)
+        FROM
+            Table_Name
+        WHERE
+            Condition
+    );
+```
+
+## WHERE vs HAVING
+
+| WHERE | HAVING |
+|---|---|
+| Filters individual rows | Filters grouped results |
+| Applied before GROUP BY | Applied after GROUP BY |
+| Commonly used with row conditions | Commonly used with aggregate conditions |
+
+## Key Concepts
+
+- `SUM()` – Calculates total salary.
+- `MAX()` – Finds the highest salary.
+- `GROUP BY` – Groups employees by job title.
+- `HAVING` – Filters grouped results.
+- `Subquery` – A query inside another query.
+- `CTE` – Creates a temporary named result set using WITH.
+- `CROSS JOIN` – Combines every row from one result with every row from another result.
+- `Derived Table` – A subquery used as a table in the FROM clause.
+
+---
+
+
