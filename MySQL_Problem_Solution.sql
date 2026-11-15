@@ -546,4 +546,301 @@ AND a.event_date = b.first_login;
 
 
 
+-- Q26) Write an SQL query to find the names of products that have at least 100 units ordered in February 2020.
+--
+-- Table: Products
+-- +------------+-----------------+------------------+
+-- | product_id | product_name    | product_category |
+-- +------------+-----------------+------------------+
+-- | 1          | Leetcode        | Book             |
+-- | 2          | Solutions       | Book             |
+-- | 3          | Jewels of       | Book             |
+-- | 4          | HP              | Laptop           |
+-- | 5          | Lenovo          | Laptop           |
+-- | 6          | Leetcode Kit    | T-shirt          |
+-- +------------+-----------------+------------------+
+--
+-- Table: Orders
+-- +------------+------------+------+
+-- | product_id | order_date | unit |
+-- +------------+------------+------+
+-- | 1          | 2020-02-05 | 60   |
+-- | 1          | 2020-02-10 | 70   |
+-- | 2          | 2020-01-18 | 30   |
+-- | 2          | 2020-02-11 | 80   |
+-- | 3          | 2020-02-17 | 2    |
+-- | 3          | 2020-02-24 | 3    |
+-- | 4          | 2020-03-01 | 20   |
+-- | 4          | 2020-03-04 | 30   |
+-- | 4          | 2020-03-04 | 60   |
+-- | 6          | 2020-02-25 | 50   |
+-- | 6          | 2020-02-27 | 50   |
+-- | 6          | 2020-03-01 | 50   |
+-- +------------+------------+------+
+--
+-- Expected Output:
+-- +------------------+------+
+-- | product_name     | unit |
+-- +------------------+------+
+-- | Leetcode         | 130  |
+-- | Leetcode Kit     | 100  |
+-- +------------------+------+
+--
+-- Requirements:
+-- 1. Join Products and Orders using product_id.
+-- 2. Filter orders placed in February 2020.
+-- 3. Calculate total units for each product using SUM().
+-- 4. Group by product_id and product_name.
+-- 5. Use HAVING to return products with at least 100 total units.
+
+
+SELECT *,
+	s.product_name,
+	SUM(p.unit) AS unit 
+FROM
+	Products s 
+INNER JOIN 
+	Orders p 
+ON 
+	s.product_id = p.product_id 
+ WHERE 
+ 	p.order_date >='2020-02-01' 
+ AND
+ 	p.order_date < '2020-03-01'
+ GROUP BY 
+ 	s.product_id,
+ 	s.product_name
+ HAVING 
+ 	SUM(p.unit) >=100;
+
+
+
+-- Q27) Write an SQL query to find users who have valid email addresses.
+--
+-- Table: Users
+-- +---------+-------------+----------------------+
+-- | user_id | name        | mail                 |
+-- +---------+-------------+----------------------+
+-- | 1       | Winston     | winston@leetcode.com |
+-- | 2       | Jonathan    | jonathanisgreat      |
+-- | 3       | Annabelle   | bella-@leetcode.com  |
+-- | 4       | Sally       | sally.come@leetcode.com |
+-- | 5       | Marwan      | quarz#2020@leetcode.com |
+-- | 6       | David       | david69@gmail.com    |
+-- | 7       | Shapiro     | .shapo@leetcode.com |
+-- +---------+-------------+----------------------+
+--
+-- Requirements:
+-- 1. Email prefix must start with an English letter (A-Z or a-z).
+-- 2. Prefix can contain letters, digits, underscore (_), period (.), and dash (-).
+-- 3. Email domain must be exactly '@leetcode.com'.
+-- 4. Exclude emails containing invalid characters.
+-- 5. Exclude emails that do not start with a letter.
+-- 6. Use REGEXP (Regular Expression) to validate email addresses.
+-- 7. Return user_id, name, and mail.
+--
+-- Expected Output:
+-- +---------+-----------+---------------------------+
+-- | user_id | name      | mail                      |
+-- +---------+-----------+---------------------------+
+-- | 1       | Winston   | winston@leetcode.com      |
+-- | 3       | Annabelle | bella-@leetcode.com       |
+-- | 4       | Sally     | sally.come@leetcode.com   |
+-- +---------+-----------+---------------------------+
+
+
+
+
+SELECT
+	user_id,
+	user_name,
+	mail
+FROM
+	Users
+WHERE mail REGEXP '^[A-Za-z][A-Za-z0-9_.-]*@leetcode[.]com$';
+
+
+
+-- Q28) Write an SQL query to find customers who have spent at least $100 in each month of June and July 2020.
+--
+-- Table: Customers
+-- +-------------+---------+---------+
+-- | customer_id | name    | country |
+-- +-------------+---------+---------+
+-- | 1           | Winston  | USA     |
+-- | 2           | Jonathan | Peru    |
+-- | 3           | Moustafa | Egypt   |
+-- +-------------+---------+---------+
+--
+-- Table: Product
+-- +------------+-------------+-------+
+-- | product_id | description | price |
+-- +------------+-------------+-------+
+-- | 10         | LC Phone    | 300   |
+-- | 20         | LC T-Shirt  | 10    |
+-- | 30         | LC Book     | 45    |
+-- | 40         | LC Keychain | 2     |
+-- +------------+-------------+-------+
+--
+-- Table: Orders
+-- +----------+-------------+------------+------------+----------+
+-- | order_id | customer_id | product_id | order_date | quantity |
+-- +----------+-------------+------------+------------+----------+
+-- | 1        | 1           | 10         | 2020-06-10 | 1        |
+-- | 2        | 1           | 20         | 2020-07-01 | 1        |
+-- | 3        | 1           | 30         | 2020-07-08 | 2        |
+-- | 4        | 2           | 10         | 2020-06-15 | 2        |
+-- | 5        | 2           | 40         | 2020-07-01 | 10       |
+-- | 6        | 3           | 20         | 2020-06-24 | 2        |
+-- | 7        | 3           | 30         | 2020-06-25 | 2        |
+-- | 9        | 3           | 30         | 2020-05-08 | 3        |
+-- +----------+-------------+------------+------------+----------+
+--
+-- Expected Output:
+-- +-------------+---------+
+-- | customer_id | name    |
+-- +-------------+---------+
+-- | 1           | Winston |
+-- +-------------+---------+
+--
+-- Requirements:
+-- 1. Join Customers, Orders, and Product tables.
+-- 2. Filter orders placed in June and July 2020.
+-- 3. Calculate spending using price * quantity.
+-- 4. Calculate June and July spending separately using CASE WHEN.
+-- 5. Group results by customer_id and name.
+-- 6. Use HAVING to ensure spending is at least $100 in BOTH months.
+-- 7. Return customer_id and customer name.
+
+
+
+SELECT
+	c.customer_id,
+	c.name 
+FROM
+	Customers c
+INNER JOIN 
+	Orders o 
+ON 
+	c.customer_id = o.customer_id 
+INNER JOIN 
+	Product p 
+ON
+	o.product_id = p.product_id 
+WHERE 
+		o.order_date >='2020-06-01'
+	AND
+		o.order_date < '2020-08-01'
+GROUP BY
+	c.customer_id,
+	c.name 
+HAVING 
+	SUM(
+		CASE 
+			WHEN MONTH(o.order_date) = 6 
+			THEN p.price * p.qunatity
+			ELSE 0 
+		END 
+	) > = 100
+	AND 
+	SUM(
+		CASE 
+			WHEN MONTH(o.order_date) = 7 
+			THEN p.price * p.quantity 
+			ELSE 0 
+		END 
+	) >= 100;
+
+
+
+
+-- Q29) Find the distinct titles of kid-friendly movies streamed in June 2020.
+--
+-- Table: TVProgram
+--
+-- Column Name     Type
+-- -------------------------
+-- program_date    date
+-- content_id      int
+-- channel         varchar
+--
+-- Primary Key: (program_date, content_id)
+--
+-- Table: Content
+--
+-- Column Name     Type
+-- -------------------------
+-- content_id      int
+-- title           varchar
+-- Kids_content    enum('Y', 'N')
+-- content_type    varchar
+--
+-- Primary Key: content_id
+--
+-- Sample Input:
+--
+-- TVProgram Table:
+--
+-- program_date         content_id    channel
+-- ------------------------------------------------
+-- 2020-06-10 08:00     1             LC-Channel
+-- 2020-05-11 12:00     2             LC-Channel
+-- 2020-05-12 12:00     3             LC-Channel
+-- 2020-05-13 14:00     4             Disney Ch
+-- 2020-06-18 14:00     4             Disney Ch
+-- 2020-07-15 16:00     5             Disney Ch
+--
+-- Content Table:
+--
+-- content_id    title             Kids_content    content_type
+-- --------------------------------------------------------------
+-- 1             Alg. for Kids     Y               Series
+-- 2             Database Sols     N               Series
+-- 3             Aladdin           Y               Movies
+-- 4             Cinderella        Y               Movies
+-- 5             Leetcode Movie    N               Movies
+--
+-- Requirements:
+--
+-- 1. Find movies streamed during June 2020.
+-- 2. Include only kid-friendly content (Kids_content = 'Y').
+-- 3. Include only movies (content_type = 'Movies').
+-- 4. Return distinct movie titles.
+-- 5. The result can be returned in any order.
+--
+-- Expected Output:
+--
+-- title
+-- ----------------
+-- Aladdin
+--
+-- Explanation:
+--
+-- 1. "Alg. for Kids" is not a movie.
+-- 2. "Database Sols" is not kid-friendly and is not a movie.
+-- 3. "Aladdin" is a kid-friendly movie streamed in June 2020.
+-- 4. "Cinderella" is a kid-friendly movie but was not streamed in June 2020.
+-- 5. "Leetcode Movie" is not kid-friendly.
+--
+-- Solution:
+
+
+
+SELECT DISTINCT 
+	c.title 
+FROM
+	TVProgram s 
+INNER JOIN 
+	Content c
+ON 
+	c.content_id = s.content_id
+WHERE 
+		s.program_date >= '2020-06-01'
+	AND 
+		s.program_date < '2020-07-01'
+	AND 
+		c.Kids_content = 'Y'
+	AND 
+		c.content_type = "Movies";
+
 
