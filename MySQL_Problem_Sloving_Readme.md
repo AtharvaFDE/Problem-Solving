@@ -1644,3 +1644,721 @@ First find the minimum or maximum value, then join it back to the original table
 - Composite Primary Key
 
 ---
+
+### 26Q) Find Products With at Least 100 Units Ordered in February 2020
+
+## Products Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| product_id | int |
+| product_name | varchar |
+| product_category | varchar |
+
+Primary Key: `product_id`
+
+## Orders Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| product_id | int |
+| order_date | date |
+| unit | int |
+
+Note: The Orders table may contain duplicate rows.
+
+## Sample Input
+
+### Products Table
+
+| product_id | product_name | product_category |
+|---:|---|---|
+| 1 | Leetcode | Book |
+| 2 | Solutions | Book |
+| 3 | Jewels of Stringology | Book |
+| 4 | HP | Laptop |
+| 5 | Lenovo | Laptop |
+| 6 | Leetcode Kit | T-shirt |
+
+### Orders Table
+
+| product_id | order_date | unit |
+|---:|---|---:|
+| 1 | 2020-02-05 | 60 |
+| 1 | 2020-02-10 | 70 |
+| 2 | 2020-01-18 | 30 |
+| 2 | 2020-02-11 | 80 |
+| 3 | 2020-02-17 | 2 |
+| 3 | 2020-02-24 | 3 |
+| 4 | 2020-03-01 | 20 |
+| 4 | 2020-03-04 | 30 |
+| 4 | 2020-03-04 | 60 |
+| 6 | 2020-02-25 | 50 |
+| 6 | 2020-02-27 | 50 |
+| 6 | 2020-03-01 | 50 |
+
+## Expected Output
+
+| product_name | unit |
+|---|---:|
+| Leetcode | 130 |
+| Leetcode Kit | 100 |
+
+## Solution
+
+```sql
+SELECT
+    s.product_name,
+    SUM(p.unit) AS unit
+FROM
+    Products s
+INNER JOIN
+    Orders p
+ON
+    s.product_id = p.product_id
+WHERE
+    p.order_date >= '2020-02-01'
+    AND p.order_date < '2020-03-01'
+GROUP BY
+    s.product_id,
+    s.product_name
+HAVING
+    SUM(p.unit) >= 100;
+```
+
+## Explanation
+
+1. INNER JOIN:
+   - Connects Products and Orders tables using `product_id`.
+   - Retrieves product information along with its order details.
+
+2. WHERE:
+   - Filters orders placed during February 2020.
+   - `p.order_date >= '2020-02-01'` includes February 1.
+   - `p.order_date < '2020-03-01'` excludes March 1 and includes all February dates.
+
+3. SUM():
+   - Calculates the total units ordered for each product.
+   - Example: Leetcode = 60 + 70 = 130.
+
+4. GROUP BY:
+   - Groups records by `product_id` and `product_name`.
+   - Calculates the total units separately for each product.
+   - `product_id` uniquely identifies each product, while `product_name` is included in the output.
+
+5. HAVING:
+   - Filters grouped results.
+   - Returns only products whose total ordered units are at least 100.
+
+## Optimization
+
+- Use a date range instead of extracting the month and year from `order_date`.
+- The condition `order_date >= '2020-02-01' AND order_date < '2020-03-01'` can make better use of an index on `order_date`.
+- An index on `Orders(product_id, order_date)` may help with joins and date filtering, depending on the execution plan and database.
+
+## Interview Tip
+
+Remember the difference between WHERE and HAVING:
+
+| WHERE | HAVING |
+|---|---|
+| Filters individual rows | Filters grouped results |
+| Applied before GROUP BY | Applied after GROUP BY |
+| Filters normal column values | Filters aggregate results such as SUM(), COUNT(), AVG() |
+
+When a question asks for a total amount per category or product, think about:
+
+1. `JOIN` to connect related tables.
+2. `WHERE` to filter individual records.
+3. `GROUP BY` to create groups.
+4. `SUM()` to calculate totals.
+5. `HAVING` to filter aggregated results.
+
+## Key Concepts
+
+- INNER JOIN
+- WHERE
+- Date Range Filtering
+- SUM()
+- GROUP BY
+- HAVING
+- Aggregate Functions
+- Primary Key and Foreign Key
+
+---
+
+### 27Q) Find Users With Valid Emails Using REGEXP
+
+## Users Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| user_id | int |
+| name | varchar |
+| mail | varchar |
+
+Primary Key: `user_id`
+
+## Problem Description
+
+Write an SQL query to find users who have valid email addresses.
+
+A valid email must satisfy the following conditions:
+
+1. The email prefix must start with an English letter (A-Z or a-z).
+2. The prefix can contain:
+   - Letters (A-Z, a-z)
+   - Digits (0-9)
+   - Underscore (`_`)
+   - Period (`.`)
+   - Dash (`-`)
+3. The email domain must be exactly `@leetcode.com`.
+
+## Sample Input
+
+### Users Table
+
+| user_id | name | mail |
+|---:|---|---|
+| 1 | Winston | winston@leetcode.com |
+| 2 | Jonathan | jonathanisgreat |
+| 3 | Annabelle | bella-@leetcode.com |
+| 4 | Sally | sally.come@leetcode.com |
+| 5 | Marwan | quarz#2020@leetcode.com |
+| 6 | David | david69@gmail.com |
+| 7 | Shapiro | .shapo@leetcode.com |
+
+## Expected Output
+
+| user_id | name | mail |
+|---:|---|---|
+| 1 | Winston | winston@leetcode.com |
+| 3 | Annabelle | bella-@leetcode.com |
+| 4 | Sally | sally.come@leetcode.com |
+
+## Solution
+
+```sql
+SELECT
+    user_id,
+    name,
+    mail
+FROM
+    Users
+WHERE
+    mail REGEXP '^[A-Za-z][A-Za-z0-9_.-]*@leetcode[.]com$';
+```
+
+## Explanation
+
+### 1. REGEXP
+
+- `REGEXP` stands for Regular Expression.
+- It is used to check whether a string matches a specified pattern.
+- It helps validate email formats based on predefined rules.
+
+### 2. Understanding the Regular Expression
+
+Pattern:
+
+```regex
+^[A-Za-z][A-Za-z0-9_.-]*@leetcode[.]com$
+```
+
+| Pattern | Explanation |
+|---|---|
+| `^` | Matches the beginning of the string |
+| `[A-Za-z]` | First character must be an uppercase or lowercase English letter |
+| `[A-Za-z0-9_.-]*` | Allows letters, digits, underscore, period, and dash zero or more times |
+| `@leetcode` | Matches the exact text `@leetcode` |
+| `[.]` | Matches an actual period (`.`) |
+| `com` | Matches the text `com` |
+| `$` | Matches the end of the string |
+
+### 3. Why Use `*`?
+
+The `*` symbol means zero or more repetitions.
+
+We use it because the first character is already validated separately using `[A-Za-z]`.
+
+For example:
+
+- `a@leetcode.com` → Valid
+- `john@leetcode.com` → Valid
+- `john123@leetcode.com` → Valid
+- `john_doe@leetcode.com` → Valid
+
+### 4. Why Use `[.]` Instead of `.`?
+
+In Regular Expressions:
+
+- `.` matches any single character.
+- `[.]` matches only an actual period.
+
+Therefore, `[.]` ensures that the email contains the correct domain separator.
+
+## Invalid Email Examples
+
+| Email | Reason |
+|---|---|
+| jonathanisgreat | Missing domain |
+| quarz#2020@leetcode.com | Contains an invalid `#` character |
+| david69@gmail.com | Wrong domain |
+| .shapo@leetcode.com | Prefix starts with a period |
+
+## Interview Tip
+
+Remember these important REGEXP symbols:
+
+| Symbol | Meaning |
+|---|---|
+| `^` | Beginning of string |
+| `$` | End of string |
+| `[]` | Character group |
+| `*` | Zero or more repetitions |
+| `+` | One or more repetitions |
+| `[A-Z]` | Uppercase letters |
+| `[a-z]` | Lowercase letters |
+| `[0-9]` | Digits |
+| `[.]` | Actual period |
+
+When solving email validation problems, break the pattern into three parts:
+
+1. Validate the prefix.
+2. Validate the allowed characters.
+3. Validate the exact domain.
+
+## Key Concepts
+
+- REGEXP
+- Regular Expressions
+- Pattern Matching
+- Character Classes
+- String Validation
+- Special Regex Characters (`^`, `$`, `*`)
+- Email Validation
+
+---
+
+
+### 28Q) Find Customers Who Spent at Least $100 in Both June and July 2020
+
+## Customers Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| customer_id | int |
+| name | varchar |
+| country | varchar |
+
+Primary Key: `customer_id`
+
+## Product Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| product_id | int |
+| description | varchar |
+| price | int |
+
+Primary Key: `product_id`
+
+## Orders Table Structure
+
+| Column Name | Data Type |
+|---|---|
+| order_id | int |
+| customer_id | int |
+| product_id | int |
+| order_date | date |
+| quantity | int |
+
+Primary Key: `order_id`
+
+## Problem Description
+
+Write an SQL query to find customers who have spent at least $100 in each month of June and July 2020.
+
+Return `customer_id` and customer name.
+
+## Sample Input
+
+### Customers Table
+
+| customer_id | name | country |
+|---:|---|---|
+| 1 | Winston | USA |
+| 2 | Jonathan | Peru |
+| 3 | Moustafa | Egypt |
+
+### Product Table
+
+| product_id | description | price |
+|---:|---|---:|
+| 10 | LC Phone | 300 |
+| 20 | LC T-Shirt | 10 |
+| 30 | LC Book | 45 |
+| 40 | LC Keychain | 2 |
+
+### Orders Table
+
+| order_id | customer_id | product_id | order_date | quantity |
+|---:|---:|---:|---|---:|
+| 1 | 1 | 10 | 2020-06-10 | 1 |
+| 2 | 1 | 20 | 2020-07-01 | 1 |
+| 3 | 1 | 30 | 2020-07-08 | 2 |
+| 4 | 2 | 10 | 2020-06-15 | 2 |
+| 5 | 2 | 40 | 2020-07-01 | 10 |
+| 6 | 3 | 20 | 2020-06-24 | 2 |
+| 7 | 3 | 30 | 2020-06-25 | 2 |
+| 9 | 3 | 30 | 2020-05-08 | 3 |
+
+## Expected Output
+
+| customer_id | name |
+|---:|---|
+| 1 | Winston |
+
+## Solution
+
+```sql
+SELECT
+    c.customer_id,
+    c.name
+FROM
+    Customers c
+INNER JOIN
+    Orders o
+ON
+    c.customer_id = o.customer_id
+INNER JOIN
+    Product p
+ON
+    o.product_id = p.product_id
+WHERE
+    o.order_date >= '2020-06-01'
+    AND o.order_date < '2020-08-01'
+GROUP BY
+    c.customer_id,
+    c.name
+HAVING
+    SUM(
+        CASE
+            WHEN MONTH(o.order_date) = 6
+            THEN p.price * o.quantity
+            ELSE 0
+        END
+    ) >= 100
+    AND
+    SUM(
+        CASE
+            WHEN MONTH(o.order_date) = 7
+            THEN p.price * o.quantity
+            ELSE 0
+        END
+    ) >= 100;
+```
+
+## Explanation
+
+### 1. INNER JOIN
+
+Connect the three tables using their related columns.
+
+- Customers and Orders are joined using `customer_id`.
+- Orders and Product are joined using `product_id`.
+
+This allows us to retrieve customer information, product prices, and order quantities.
+
+### 2. WHERE
+
+```sql
+WHERE
+    o.order_date >= '2020-06-01'
+    AND o.order_date < '2020-08-01'
+```
+
+Filters orders placed during June and July 2020.
+
+Using `< '2020-08-01'` includes all dates in July and excludes August.
+
+### 3. GROUP BY
+
+```sql
+GROUP BY
+    c.customer_id,
+    c.name
+```
+
+Groups all orders customer-wise so that we can calculate the total spending for each customer.
+
+### 4. CASE WHEN
+
+CASE WHEN is used to calculate spending separately for June and July.
+
+June spending:
+
+```sql
+SUM(
+    CASE
+        WHEN MONTH(o.order_date) = 6
+        THEN p.price * o.quantity
+        ELSE 0
+    END
+)
+```
+
+July spending:
+
+```sql
+SUM(
+    CASE
+        WHEN MONTH(o.order_date) = 7
+        THEN p.price * o.quantity
+        ELSE 0
+    END
+)
+```
+
+The total amount is calculated using:
+
+`Product Price × Quantity`
+
+### 5. HAVING
+
+```sql
+HAVING
+    June_Spending >= 100
+    AND July_Spending >= 100
+```
+
+Filters customers whose spending is at least $100 in both months.
+
+Both conditions must be satisfied.
+
+## Spending Calculation
+
+| Customer | June Spending | July Spending | Result |
+|---|---:|---:|---|
+| Winston | 300 | 100 | Selected |
+| Jonathan | 600 | 20 | Excluded |
+| Moustafa | 110 | 0 | Excluded |
+
+### Winston Calculation
+
+June:
+- LC Phone: 300 × 1 = 300
+- Total June spending = $300
+
+July:
+- LC T-Shirt: 10 × 1 = 10
+- LC Book: 45 × 2 = 90
+- Total July spending = $100
+
+Winston satisfies both conditions.
+
+## Optimization
+
+- Use date range filtering to limit the records before aggregation.
+- Use conditional aggregation with `CASE WHEN` to calculate monthly spending in one query.
+- Use appropriate indexes on `Orders(customer_id, order_date)` and `Orders(product_id)` where beneficial.
+- Avoid filtering only by month because the question requires a specific year as well.
+
+## Interview Tip
+
+When a question asks for spending, sales, or revenue across multiple months, remember:
+
+1. Use `JOIN` to connect related tables.
+2. Use `WHERE` to filter the required date range.
+3. Use `price * quantity` to calculate the transaction amount.
+4. Use `CASE WHEN` inside `SUM()` to calculate each month's total separately.
+5. Use `GROUP BY` to calculate totals customer-wise.
+6. Use `HAVING` with `AND` when every monthly condition must be satisfied.
+
+Important distinction:
+
+- `WHERE` filters individual rows.
+- `HAVING` filters aggregated results.
+
+## Key Concepts
+
+- INNER JOIN
+- WHERE
+- GROUP BY
+- HAVING
+- CASE WHEN
+- SUM()
+- MONTH()
+- Conditional Aggregation
+- Date Range Filtering
+- Revenue Calculation
+
+---
+
+### 29Q) Find the Distinct Titles of Kid-Friendly Movies Streamed in June 2020
+
+## Problem Description
+
+Write an SQL query to report the distinct titles of kid-friendly movies streamed during June 2020.
+
+Return the result table in any order.
+
+## Table Structure
+
+### Table: TVProgram
+
+| Column Name | Type |
+|---|---|
+| program_date | date |
+| content_id | int |
+| channel | varchar |
+
+Primary Key: `(program_date, content_id)`
+
+This table contains information about programs shown on TV.
+
+### Table: Content
+
+| Column Name | Type |
+|---|---|
+| content_id | int |
+| title | varchar |
+| Kids_content | enum('Y', 'N') |
+| content_type | varchar |
+
+Primary Key: `content_id`
+
+- `Kids_content = 'Y'` means the content is suitable for kids.
+- `Kids_content = 'N'` means the content is not suitable for kids.
+- `content_type` represents the category, such as Movies or Series.
+
+## Sample Input
+
+### TVProgram Table
+
+| program_date | content_id | channel |
+|---|---:|---|
+| 2020-06-10 08:00 | 1 | LC-Channel |
+| 2020-05-11 12:00 | 2 | LC-Channel |
+| 2020-05-12 12:00 | 3 | LC-Channel |
+| 2020-05-13 14:00 | 4 | Disney Ch |
+| 2020-06-18 14:00 | 4 | Disney Ch |
+| 2020-07-15 16:00 | 5 | Disney Ch |
+
+### Content Table
+
+| content_id | title | Kids_content | content_type |
+|---:|---|:---:|---|
+| 1 | Alg. for Kids | Y | Series |
+| 2 | Database Sols | N | Series |
+| 3 | Aladdin | Y | Movies |
+| 4 | Cinderella | Y | Movies |
+| 5 | Leetcode Movie | N | Movies |
+
+## Expected Output
+
+| title |
+|---|
+| Aladdin |
+
+## Solution
+
+```sql
+SELECT DISTINCT
+    c.title
+FROM
+    TVProgram s
+INNER JOIN
+    Content c
+ON
+    c.content_id = s.content_id
+WHERE
+    s.program_date >= '2020-06-01'
+    AND s.program_date < '2020-07-01'
+    AND c.Kids_content = 'Y'
+    AND c.content_type = 'Movies';
+```
+
+## Explanation
+
+### 1. INNER JOIN
+
+```sql
+INNER JOIN Content c
+ON c.content_id = s.content_id
+```
+
+- Connects the `TVProgram` and `Content` tables.
+- Uses `content_id` as the common column.
+- Helps us retrieve movie titles and their categories.
+
+### 2. WHERE Clause – Filter June 2020
+
+```sql
+s.program_date >= '2020-06-01'
+AND s.program_date < '2020-07-01'
+```
+
+- `>= '2020-06-01'` includes June 1.
+- `< '2020-07-01'` excludes July 1 and everything after it.
+- This selects programs streamed during June 2020.
+
+Using this date range also works correctly when `program_date` contains a time component.
+
+### 3. Filter Kid-Friendly Content
+
+```sql
+AND c.Kids_content = 'Y'
+```
+
+- Includes only content suitable for kids.
+- Excludes records where `Kids_content = 'N'`.
+
+### 4. Filter Movies
+
+```sql
+AND c.content_type = 'Movies'
+```
+
+- Includes only movies.
+- Excludes series and other content categories.
+
+### 5. SELECT DISTINCT
+
+```sql
+SELECT DISTINCT c.title
+```
+
+- Returns unique movie titles.
+- Prevents duplicate titles if a movie was streamed multiple times.
+
+## Optimization
+
+1. Use a date range instead of applying `MONTH()` and `YEAR()` to the date column in the WHERE clause.
+2. Use `DISTINCT` when only unique values are required.
+3. Join tables using their common key, `content_id`.
+4. Avoid unnecessary `GROUP BY` because no aggregate calculation is required.
+
+## Interview Tip
+
+When a question asks for distinct records without requiring aggregate calculations, consider using `SELECT DISTINCT` instead of `GROUP BY`.
+
+For date filtering, prefer:
+
+```sql
+date_column >= '2020-06-01'
+AND date_column < '2020-07-01'
+```
+
+This is a reliable approach for filtering an entire month, including date-time values.
+
+## Key Concepts
+
+- INNER JOIN
+- WHERE Clause
+- Date Range Filtering
+- SELECT DISTINCT
+- Multiple Filtering Conditions
+- Primary Key and Foreign Key Relationships
+
+---
