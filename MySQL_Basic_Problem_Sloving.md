@@ -5217,3 +5217,1814 @@ HAVING
 ---
 
 
+
+### Q61) Display the names of employees from department number 10 with salary greater than that of any employee working in other departments.
+
+## Problem Description
+
+Write a SQL query to display the names of employees working in department number 10 whose salary is greater than the salary of every employee working in other departments.
+
+Requirements:
+
+1. Select employees working in department number 10.
+2. Compare their salaries with employees working in all other departments.
+3. Display only employees whose salary is greater than every salary in the other departments.
+
+## Solution 1: Using ALL Operator
+
+```sql
+SELECT
+    Names AS Employee_Name
+FROM
+    Employee
+WHERE
+    Dept_no = 10
+AND
+    Salary > ALL (
+        SELECT
+            Salary
+        FROM
+            Employee
+        WHERE
+            Dept_no <> 10
+    );
+```
+
+## Explanation
+
+This query contains two parts.
+
+### 1. Outer Query
+
+```sql
+SELECT
+    Names AS Employee_Name
+FROM
+    Employee
+WHERE
+    Dept_no = 10;
+```
+
+- `SELECT Names` retrieves employee names.
+- `WHERE Dept_no = 10` selects employees working in department number 10.
+
+### 2. Inner Query
+
+```sql
+SELECT
+    Salary
+FROM
+    Employee
+WHERE
+    Dept_no <> 10;
+```
+
+- The inner query retrieves salaries of employees working in departments other than department 10.
+- `<>` means not equal to.
+
+### 3. ALL Operator
+
+```sql
+Salary > ALL (
+    SELECT Salary
+    FROM Employee
+    WHERE Dept_no <> 10
+);
+```
+
+The `ALL` operator checks whether the salary of a department 10 employee is greater than every salary returned by the inner query.
+
+## Example
+
+Suppose the Employee table contains the following records:
+
+| Names | Dept_no | Salary |
+|---|---:|---:|
+| SMITH | 10 | 5000 |
+| JAMES | 10 | 6000 |
+| ALLEN | 20 | 3000 |
+| WARD | 30 | 4000 |
+| KING | 20 | 3500 |
+
+The inner query returns:
+
+| Salary |
+|---:|
+| 3000 |
+| 4000 |
+| 3500 |
+
+The highest salary among other departments is 4000.
+
+The outer query checks:
+
+- SMITH: 5000 > 4000 — True
+- JAMES: 6000 > 4000 — True
+
+Result:
+
+| Employee_Name |
+|---|
+| SMITH |
+| JAMES |
+
+## Solution 2: Using MAX() Function
+
+```sql
+SELECT
+    Names AS Employee_Name
+FROM
+    Employee
+WHERE
+    Dept_no = 10
+AND
+    Salary > (
+        SELECT
+            MAX(Salary)
+        FROM
+            Employee
+        WHERE
+            Dept_no <> 10
+    );
+```
+
+### Explanation
+
+1. The inner query finds the maximum salary among employees in other departments.
+2. The outer query selects employees from department number 10.
+3. The `WHERE` condition checks whether their salary is greater than that maximum salary.
+
+This solution works because a salary greater than the maximum salary is also greater than every individual salary in the other departments.
+
+## Solution 3: Using NOT EXISTS
+
+```sql
+SELECT
+    e.Names AS Employee_Name
+FROM
+    Employee e
+WHERE
+    e.Dept_no = 10
+AND
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            Employee e2
+        WHERE
+            e2.Dept_no <> 10
+        AND
+            e2.Salary >= e.Salary
+    );
+```
+
+### Explanation
+
+1. The outer query selects employees from department number 10.
+2. The inner query searches for employees in other departments whose salary is greater than or equal to the current employee's salary.
+3. `NOT EXISTS` ensures that no such employee exists.
+4. Therefore, only employees earning more than every employee in other departments are displayed.
+
+## New Concept: ALL Operator
+
+The `ALL` operator compares a value with every value returned by a subquery.
+
+| Operator | Meaning |
+|---|---|
+| `> ALL` | Greater than every value |
+| `< ALL` | Less than every value |
+| `= ALL` | Equal to every value |
+| `>= ALL` | Greater than or equal to every value |
+| `<= ALL` | Less than or equal to every value |
+
+Example:
+
+```sql
+SELECT
+    Salary
+FROM
+    Employee
+WHERE
+    Salary > ALL (3000, 4000, 3500);
+```
+
+A salary must be greater than all three values.
+
+## New Concept: ANY Operator
+
+The `ANY` operator checks whether a comparison is true for at least one value returned by a subquery.
+
+| Operator | Meaning |
+|---|---|
+| `> ANY` | Greater than at least one value |
+| `< ANY` | Less than at least one value |
+| `= ANY` | Equal to at least one value |
+
+Example:
+
+```sql
+SELECT
+    Salary
+FROM
+    Employee
+WHERE
+    Salary > ANY (3000, 4000, 3500);
+```
+
+A salary only needs to be greater than one of the values.
+
+## New Concept: MAX() Function
+
+`MAX()` returns the highest value from a column.
+
+Example:
+
+```sql
+SELECT
+    MAX(Salary)
+FROM
+    Employee
+WHERE
+    Dept_no <> 10;
+```
+
+This returns the highest salary among employees working outside department number 10.
+
+## Important Concept to Remember
+
+Understand the difference between `ANY` and `ALL`.
+
+| ANY | ALL |
+|---|---|
+| At least one comparison must be true | Every comparison must be true |
+| Greater than at least one value | Greater than every value |
+| Similar to checking against the minimum for `>` comparisons | Similar to checking against the maximum for `>` comparisons |
+
+### Formula to Remember
+
+When a question says:
+
+- Greater than every employee's salary → `> ALL`
+- Greater than at least one employee's salary → `> ANY`
+- Less than every employee's salary → `< ALL`
+- Less than at least one employee's salary → `< ANY`
+
+## Key Concepts
+
+- `WHERE` – Filters individual records.
+- `ALL` – Compares a value against every value returned by a subquery.
+- `ANY` – Compares a value against at least one value returned by a subquery.
+- `MAX()` – Finds the highest value.
+- `NOT EXISTS` – Checks that no matching record exists.
+- `Subquery` – A query inside another query.
+- `<>` – Not equal to.
+
+---
+
+
+
+### Q62) Display the names of employees in uppercase.
+
+## Problem Description
+
+Write a SQL query to display the names of all employees in uppercase letters.
+
+## Solution
+
+```sql
+SELECT
+    UPPER(Employee_Name) AS Employee_Name
+FROM
+    Employee;
+```
+
+## Explanation
+
+1. `UPPER(Employee_Name)` converts each employee's name into uppercase letters.
+2. `AS Employee_Name` assigns the output column an alias.
+3. `FROM Employee` retrieves employee names from the Employee table.
+
+## New Concept: UPPER() Function
+
+The `UPPER()` function is a string function in SQL that converts lowercase characters into uppercase characters.
+
+Syntax:
+
+```sql
+UPPER(column_name)
+```
+
+Example:
+
+```sql
+SELECT UPPER('atharva') AS Employee_Name;
+```
+
+Output:
+
+```text
+ATHARVA
+```
+
+## Related String Functions
+
+| Function | Purpose | Example |
+|---|---|---|
+| `UPPER()` | Converts text to uppercase | `UPPER('hello')` → `HELLO` |
+| `LOWER()` | Converts text to lowercase | `LOWER('HELLO')` → `hello` |
+| `LENGTH()` | Returns the length of text | `LENGTH('Hello')` → `5` |
+
+## Key Concepts
+
+- `UPPER()` converts text into uppercase.
+- `LOWER()` converts text into lowercase.
+- These functions do not modify the original table data; they change only the displayed result.
+
+---
+
+
+
+### Q63) Display the names of employees in lowercase.
+
+## Problem Description
+
+Write a SQL query to display the names of all employees in lowercase letters.
+
+## Solution
+
+```sql
+SELECT
+    LOWER(Employee_Name) AS Employee_Name
+FROM
+    Employee;
+```
+
+## Explanation
+
+1. `LOWER(Employee_Name)` converts each employee's name into lowercase letters.
+2. `AS Employee_Name` assigns the output column an alias.
+3. `FROM Employee` retrieves employee names from the Employee table.
+
+## New Concept: LOWER() Function
+
+The `LOWER()` function is a string function in SQL that converts uppercase characters into lowercase characters.
+
+Syntax:
+
+```sql
+LOWER(column_name)
+```
+
+Example:
+
+```sql
+SELECT LOWER('ATHARVA') AS Employee_Name;
+```
+
+Output:
+
+```text
+atharva
+```
+
+## Related String Functions
+
+| Function | Purpose | Example |
+|---|---|---|
+| `UPPER()` | Converts text to uppercase | `UPPER('hello')` → `HELLO` |
+| `LOWER()` | Converts text to lowercase | `LOWER('HELLO')` → `hello` |
+| `LENGTH()` | Returns the length of text | `LENGTH('Hello')` → `5` |
+
+## Key Concepts
+
+- `LOWER()` converts text into lowercase.
+- `UPPER()` converts text into uppercase.
+- These functions do not modify the original table data; they change only the displayed result.
+
+---
+
+
+### Q64) Display the names of employees in proper case.
+
+## Problem Description
+
+Write a SQL query to display all employee names in proper case, where the first character is uppercase and the remaining characters are lowercase.
+
+## Solution 1: Using INITCAP() Function (Oracle)
+
+```sql
+SELECT
+    INITCAP(Employee_Name) AS Employee_Name
+FROM
+    Employee;
+```
+
+## Solution 2: Using String Functions (MySQL)
+
+```sql
+SELECT
+    CONCAT(
+        UPPER(LEFT(LOWER(Employee_Name), 1)),
+        SUBSTRING(LOWER(Employee_Name), 2)
+    ) AS Employee_Name
+FROM
+    Employee;
+```
+
+## Explanation
+
+### Solution 1: Oracle
+
+1. `INITCAP(Employee_Name)` converts the first letter of each word into uppercase and the remaining letters into lowercase.
+2. `AS Employee_Name` assigns the output column an alias.
+3. `FROM Employee` retrieves employee names from the Employee table.
+
+### Solution 2: MySQL
+
+1. `LOWER(Employee_Name)` converts the entire name into lowercase.
+2. `LEFT(..., 1)` extracts the first character.
+3. `UPPER(...)` converts the first character into uppercase.
+4. `SUBSTRING(..., 2)` extracts the remaining characters starting from position 2.
+5. `CONCAT()` joins the uppercase first character with the remaining lowercase characters.
+
+## New Concept: INITCAP() Function
+
+The `INITCAP()` function converts the first character of each word into uppercase and the remaining characters into lowercase.
+
+Syntax:
+
+```sql
+INITCAP(column_name)
+```
+
+Example:
+
+```sql
+SELECT INITCAP('aTHARVA dESHMUKH') AS Employee_Name
+FROM DUAL;
+```
+
+Output:
+
+```text
+Atharva Deshmukh
+```
+
+Note: `INITCAP()` is available in Oracle, but not as a built-in function in MySQL.
+
+## New Concepts: MySQL String Functions
+
+| Function | Purpose |
+|---|---|
+| `CONCAT()` | Joins two or more strings |
+| `UPPER()` | Converts text into uppercase |
+| `LOWER()` | Converts text into lowercase |
+| `LEFT()` | Extracts characters from the left side |
+| `SUBSTRING()` | Extracts part of a string |
+
+## Key Concepts
+
+- Proper case means the first letter of each word is uppercase and the remaining letters are lowercase.
+- Oracle provides the `INITCAP()` function.
+- MySQL can achieve this for single-word names using `CONCAT()`, `UPPER()`, `LOWER()`, `LEFT()` and `SUBSTRING()`.
+- The queries change only the displayed output, not the original table data.
+
+---
+
+
+### Q65) Find out the length of your name using an appropriate function.
+
+## Problem Description
+
+Write a SQL query to find the length of a given name using an appropriate string function.
+
+## Solution 1: Using LENGTH() Function
+
+```sql
+SELECT
+    LENGTH('INDIA') AS Length_Data;
+```
+
+## Output
+
+| Length_Data |
+|---:|
+| 5 |
+
+## Solution 2: Using CHAR_LENGTH() Function
+
+```sql
+SELECT
+    CHAR_LENGTH('INDIA') AS Length_Data;
+```
+
+## Explanation
+
+1. `LENGTH('INDIA')` returns the number of bytes in the string.
+2. `CHAR_LENGTH('INDIA')` returns the number of characters in the string.
+3. `AS Length_Data` assigns an alias to the output column.
+4. `FROM` is not required because we are calculating the length of a fixed string rather than retrieving data from a table.
+
+## New Concept: LENGTH() Function
+
+The `LENGTH()` function returns the number of bytes occupied by a string in MySQL.
+
+Syntax:
+
+```sql
+LENGTH(string);
+```
+
+Example:
+
+```sql
+SELECT LENGTH('ATHARVA') AS Name_Length;
+```
+
+Output:
+
+```text
+7
+```
+
+## New Concept: CHAR_LENGTH() Function
+
+The `CHAR_LENGTH()` function returns the total number of characters in a string.
+
+Syntax:
+
+```sql
+CHAR_LENGTH(string);
+```
+
+Example:
+
+```sql
+SELECT CHAR_LENGTH('ATHARVA') AS Name_Length;
+```
+
+Output:
+
+```text
+7
+```
+
+## Difference Between LENGTH() and CHAR_LENGTH()
+
+| Function | Returns | Example |
+|---|---|---|
+| `LENGTH()` | Number of bytes | `LENGTH('INDIA')` → 5 |
+| `CHAR_LENGTH()` | Number of characters | `CHAR_LENGTH('INDIA')` → 5 |
+
+Note: For ordinary English letters, both functions usually return the same result. For multibyte characters, their results can differ.
+
+## Key Concepts
+
+- `LENGTH()` calculates the number of bytes in a string.
+- `CHAR_LENGTH()` calculates the number of characters in a string.
+- `AS` assigns an alias to the output column.
+- `FROM` is optional when calculating a fixed value.
+
+---
+
+
+### Q66) Display the length of all employees' names.
+
+## Problem Description
+
+Write a SQL query to display all employee names along with the length of each employee's name.
+
+## Solution 1: Using LENGTH() Function
+
+```sql
+SELECT
+    Employee_Name,
+    LENGTH(Employee_Name) AS Name_Length
+FROM
+    Employee;
+```
+
+## Solution 2: Using CHAR_LENGTH() Function
+
+```sql
+SELECT
+    Employee_Name,
+    CHAR_LENGTH(Employee_Name) AS Name_Length
+FROM
+    Employee;
+```
+
+## Sample Output
+
+| Employee_Name | Name_Length |
+|---|---:|
+| ATHARVA | 7 |
+| RAHUL | 5 |
+| PRIYA | 5 |
+| AMIT | 4 |
+
+## Explanation
+
+1. `Employee_Name` displays each employee's name.
+2. `LENGTH(Employee_Name)` calculates the number of bytes occupied by each name.
+3. `CHAR_LENGTH(Employee_Name)` calculates the number of characters in each name.
+4. `AS Name_Length` assigns a meaningful alias to the calculated column.
+5. `FROM Employee` retrieves employee names from the Employee table.
+
+## New Concept: LENGTH() Function
+
+The `LENGTH()` function returns the number of bytes in a string in MySQL.
+
+Syntax:
+
+```sql
+LENGTH(string);
+```
+
+Example:
+
+```sql
+SELECT LENGTH('ATHARVA') AS Name_Length;
+```
+
+Output: `7`
+
+## New Concept: CHAR_LENGTH() Function
+
+The `CHAR_LENGTH()` function returns the number of characters in a string.
+
+Syntax:
+
+```sql
+CHAR_LENGTH(string);
+```
+
+Example:
+
+```sql
+SELECT CHAR_LENGTH('ATHARVA') AS Name_Length;
+```
+
+Output: `7`
+
+## Important Concept: LENGTH() vs SUM()
+
+| Function | Purpose |
+|---|---|
+| `LENGTH()` | Calculates the length of a string. |
+| `SUM()` | Calculates the total of numeric values. |
+
+For example:
+
+```sql
+-- Length of each employee's name
+SELECT LENGTH(Employee_Name)
+FROM Employee;
+
+-- Combined length of all employee names
+SELECT SUM(LENGTH(Employee_Name))
+FROM Employee;
+```
+
+## Key Concepts
+
+- `LENGTH()` calculates the byte length of each name.
+- `CHAR_LENGTH()` calculates the character count of each name.
+- `SUM()` adds numeric values.
+- Each employee's name length is displayed separately without using `GROUP BY`.
+
+Note: For ordinary English letters, `LENGTH()` and `CHAR_LENGTH()` usually return the same result. They can differ for multibyte characters.
+
+---
+
+### Q67) Display the name of the employee concatenated with EMP no.
+
+## Problem Description
+
+Write a SQL query to display the employee's name concatenated with their employee number.
+
+## Solution 1: Using CONCAT() Function
+
+```sql id="w3vk5p"
+SELECT
+    CONCAT(Employee_Name, Employee_Number) AS Employee_Details
+FROM
+    Employee;
+```
+
+## Sample Output
+
+| Employee_Details |
+|---|
+| ATHARVA101 |
+| RAHUL102 |
+| PRIYA103 |
+
+## Solution 2: Using CONCAT() Function with Separator
+
+```sql id="j33b9s"
+SELECT
+    CONCAT(Employee_Name, ' - ', Employee_Number) AS Employee_Details
+FROM
+    Employee;
+```
+
+## Sample Output
+
+| Employee_Details |
+|---|
+| ATHARVA - 101 |
+| RAHUL - 102 |
+| PRIYA - 103 |
+
+## Explanation
+
+1. `CONCAT()` joins multiple values into a single string.
+2. `Employee_Name` represents the employee's name.
+3. `Employee_Number` represents the employee's number.
+4. `' - '` adds a hyphen separator between the name and employee number.
+5. `AS Employee_Details` assigns a meaningful alias to the output column.
+
+## New Concept: CONCAT() Function
+
+The `CONCAT()` function joins two or more strings into a single string.
+
+Syntax:
+
+```sql id="r2f7yt"
+CONCAT(value1, value2, value3);
+```
+
+Example:
+
+```sql id="e1v7kq"
+SELECT CONCAT('ATHARVA', '101') AS Employee_Details;
+```
+
+Output:
+
+```text id="cn74qa"
+ATHARVA101
+```
+
+## Key Concepts
+
+- `CONCAT()` combines multiple values into one string.
+- A separator can be added using a string such as `' - '` or `' '`.
+- `AS` assigns an alias to the output column.
+- `CONCAT()` does not modify the original table data.
+
+Note: This query assumes the employee table contains `Employee_Name` and `Employee_Number` columns. Use the actual column names from your table.
+
+---
+
+
+### Q68) Extract 3 characters from the string 'Oracle', starting from the 2nd character.
+
+## Problem Description
+
+Write a SQL query to extract 3 characters from the string 'Oracle', starting from the 2nd character.
+
+Expected Output: `rac`
+
+## Solution
+
+```sql
+SELECT
+    SUBSTRING('Oracle', 2, 3) AS Extracted_String;
+```
+
+## Output
+
+| Extracted_String |
+|---|
+| rac |
+
+## Explanation
+
+1. `'Oracle'` is the original string.
+2. `2` represents the starting position.
+3. `3` represents the total number of characters to extract.
+4. `AS Extracted_String` assigns an alias to the output column.
+
+## New Concept: SUBSTRING() Function
+
+The `SUBSTRING()` function extracts a specified number of characters from a string, starting at a given position.
+
+Syntax:
+
+```sql
+SUBSTRING(String, Starting_Position, Number_Of_Characters_To_Extract);
+```
+
+## Character Position
+
+| Character | O | r | a | c | l | e |
+|---|---|---|---|---|---|---|
+| Position | 1 | 2 | 3 | 4 | 5 | 6 |
+
+For `SUBSTRING('Oracle', 2, 3)`:
+
+- Starting position = 2 (`r`)
+- Number of characters = 3
+- Extracted characters = `r`, `a`, `c`
+
+## Important Concept: SQL String Indexing
+
+- SQL string positions start from `1`, not `0`.
+- The second parameter specifies where extraction begins.
+- The third parameter specifies how many characters to extract.
+- The third parameter is not the ending position.
+
+## Key Concepts
+
+- `SUBSTRING()` extracts part of a string.
+- Starting position begins at `1`.
+- The number of characters determines the extraction length.
+- `AS` assigns an alias to the output column.
+
+---
+
+
+### Q69) Find the first occurrence of character 'a' in the string 'computer maintenance corporation'.
+
+## Problem Description
+
+Write a SQL query to find the position of the first occurrence of the character `'a'` in the string `'computer maintenance corporation'` using an appropriate string function.
+
+## Solution
+
+```sql
+SELECT
+    INSTR('computer maintenance corporation', 'a') AS Character_Position;
+```
+
+## Output
+
+| Character_Position |
+|---:|
+| 13 |
+
+## Explanation
+
+1. `'computer maintenance corporation'` is the original string.
+2. `'a'` is the character we want to search for.
+3. `INSTR()` returns the position of the first occurrence of the specified character.
+4. `AS Character_Position` assigns an alias to the output column.
+
+## New Concept: INSTR() Function
+
+The `INSTR()` function returns the position of the first occurrence of a specified substring within a string.
+
+Syntax:
+
+```sql
+INSTR(Original_String, Search_String);
+```
+
+## Example
+
+```sql
+SELECT
+    INSTR('computer maintenance corporation', 'a') AS Character_Position;
+```
+
+Output:
+
+```text
+13
+```
+
+## Character Position Explanation
+
+In the string `'computer maintenance corporation'`:
+
+- `computer` occupies positions 1 to 8.
+- The space is at position 9.
+- `maintenance` starts at position 10.
+- The first occurrence of `'a'` is at position 13.
+
+## Key Concepts
+
+- `INSTR()` searches for a character or substring.
+- It returns the position of the first occurrence.
+- SQL string positions start from `1`, not `0`.
+- If the specified character is not found, `INSTR()` returns `0`.
+
+---
+
+
+### Q70) Replace every occurrence of alphabet 'A' with 'B' in the string 'Allen's'.
+
+## Problem Description
+
+Write a SQL query to replace every occurrence of the uppercase alphabet `'A'` with uppercase `'B'` in the string `'Allens'` using the `REPLACE()` function.
+
+Expected Output: `Bllens`
+
+## Solution
+
+```sql
+SELECT
+    REPLACE('Allens', 'A', 'B') AS String_Data;
+```
+
+## Output
+
+| String_Data |
+|---|
+| Bllens |
+
+## Explanation
+
+1. `'Allens'` is the original string.
+2. `'A'` is the character we want to replace.
+3. `'B'` is the replacement character.
+4. `REPLACE()` replaces every occurrence of the specified character in the string.
+5. `AS String_Data` assigns an alias to the output column.
+
+## New Concept: REPLACE() Function
+
+The `REPLACE()` function replaces all occurrences of a specified substring with another substring.
+
+Syntax:
+
+```sql
+REPLACE(Original_String, Search_String, Replacement_String);
+```
+
+## Example
+
+```sql
+SELECT
+    REPLACE('BANANA', 'A', 'O') AS String_Data;
+```
+
+Output:
+
+```text
+BONONO
+```
+
+## Key Concepts
+
+- `REPLACE()` replaces matching characters or substrings.
+- It replaces every occurrence, not just the first occurrence.
+- The original table data is not modified when using `REPLACE()` in a `SELECT` statement.
+- String literals should generally use single quotes in SQL.
+
+---
+
+
+### Q71) Display employee information by replacing the job title 'MANAGER' with 'BOSS'.
+
+## Problem Description
+
+Write a SQL query to display employee information from the Employee table. Wherever the job title `MANAGER` is found, it should be displayed as `BOSS` using the `REPLACE()` function.
+
+## Solution
+
+```sql
+SELECT
+    emp_no,
+    emp_name,
+    REPLACE(job_title, 'MANAGER', 'BOSS') AS Emp_Job
+FROM
+    Employee;
+```
+
+## Sample Output
+
+| emp_no | emp_name | Emp_Job |
+|---:|---|---|
+| 101 | ATHARVA | BOSS |
+| 102 | RAHUL | CLERK |
+| 103 | PRIYA | BOSS |
+| 104 | AMIT | ANALYST |
+
+## Explanation
+
+1. `emp_no` displays the employee number.
+2. `emp_name` displays the employee name.
+3. `REPLACE(job_title, 'MANAGER', 'BOSS')` replaces every occurrence of `MANAGER` with `BOSS` in the job title.
+4. `AS Emp_Job` assigns an alias to the output column.
+5. `FROM Employee` retrieves employee information from the Employee table.
+
+## New Concept: REPLACE() Function
+
+The `REPLACE()` function replaces all occurrences of a specified substring with another substring.
+
+Syntax:
+
+```sql
+REPLACE(Original_String, Search_String, Replacement_String);
+```
+
+## Example
+
+```sql
+SELECT
+    REPLACE('MANAGER', 'MANAGER', 'BOSS') AS Emp_Job;
+```
+
+Output:
+
+```text
+BOSS
+```
+
+## Important Concept: REPLACE() in SELECT
+
+- `REPLACE()` changes the displayed value in the query result.
+- It does not permanently modify the original table data.
+- It replaces every matching occurrence within the string.
+- MySQL string comparisons are generally case-insensitive by default, depending on the column or expression collation.
+
+## Key Concepts
+
+- `REPLACE()` is a string function.
+- It replaces matching text with new text.
+- `AS` assigns an alias to the output column.
+- `SELECT` displays the modified value without updating the original table.
+
+---
+
+
+### Q72) Display EMPNO, ENAME, and the corresponding department name instead of DEPTNO.
+
+## Problem Description
+
+Write a MySQL query to display the employee number (EMPNO), employee name (ENAME), and department name (DNAME) from the EMP and DEPT tables.
+
+Instead of displaying the department number (DEPTNO), display its corresponding department name.
+
+## Table Structure
+
+### EMP Table
+
+| EMPNO | ENAME | DEPTNO |
+|---:|---|---:|
+| 7369 | SMITH | 20 |
+| 7499 | ALLEN | 30 |
+| 7566 | JONES | 20 |
+| 7839 | KING | 10 |
+
+### DEPT Table
+
+| DEPTNO | DNAME | LOC |
+|---:|---|---|
+| 10 | ACCOUNTING | NEW YORK |
+| 20 | RESEARCH | DALLAS |
+| 30 | SALES | CHICAGO |
+| 40 | OPERATIONS | BOSTON |
+
+## Solution: Using INNER JOIN
+
+```sql
+SELECT
+    e.EMPNO,
+    e.ENAME,
+    d.DNAME AS DEPTNAME
+FROM
+    EMP e
+INNER JOIN
+    DEPT d
+ON
+    e.DEPTNO = d.DEPTNO;
+```
+
+## Sample Output
+
+| EMPNO | ENAME | DEPTNAME |
+|---:|---|---|
+| 7369 | SMITH | RESEARCH |
+| 7499 | ALLEN | SALES |
+| 7566 | JONES | RESEARCH |
+| 7839 | KING | ACCOUNTING |
+
+## Explanation
+
+1. `FROM EMP e` selects the EMP table and assigns it the alias `e`.
+2. `INNER JOIN DEPT d` joins the DEPT table and assigns it the alias `d`.
+3. `ON e.DEPTNO = d.DEPTNO` matches the department numbers from both tables.
+4. `e.EMPNO` displays the employee number.
+5. `e.ENAME` displays the employee name.
+6. `d.DNAME` displays the corresponding department name.
+7. `AS DEPTNAME` assigns a meaningful alias to the output column.
+
+## New Concept: INNER JOIN
+
+An `INNER JOIN` combines records from two tables when the specified matching condition is satisfied.
+
+Syntax:
+
+```sql
+SELECT
+    table1.column_name,
+    table2.column_name
+FROM
+    table1
+INNER JOIN
+    table2
+ON
+    table1.common_column = table2.common_column;
+```
+
+## Important Concept: Common Column
+
+The `DEPTNO` column is present in both EMP and DEPT tables.
+
+- `e.DEPTNO` belongs to the EMP table.
+- `d.DEPTNO` belongs to the DEPT table.
+- Both columns are used to identify the employee's department.
+
+## Important Concept: Table Aliases
+
+| Alias | Actual Table |
+|---|---|
+| `e` | EMP |
+| `d` | DEPT |
+
+Aliases make SQL queries shorter and easier to understand.
+
+## Key Concepts
+
+- `INNER JOIN` retrieves matching records from two tables.
+- `ON` specifies the joining condition.
+- `DEPTNO` is the common column between EMP and DEPT.
+- `DNAME` provides the department name.
+- Table aliases help identify which table a column belongs to.
+- In MySQL, use `JOIN` when related information is stored in another table instead of manually mapping values with `CASE WHEN`.
+
+---
+
+
+### Q73) Display your age in days.
+
+## Problem Description
+
+Write a MySQL query to calculate and display your age in days using your date of birth and the current date.
+
+## Solution
+
+```sql
+SELECT
+    DATEDIFF(CURDATE(), '2000-01-01') AS Age_In_Days;
+```
+
+Note: Replace `'2000-01-01'` with your actual date of birth in `YYYY-MM-DD` format.
+
+## Output
+
+Assuming:
+- Date of Birth: `2000-01-01`
+- Current Date: `2026-11-16`
+
+| Age_In_Days |
+|---:|
+| 9820 |
+
+## Explanation
+
+1. `CURDATE()` returns the current date.
+2. `'2000-01-01'` represents the date of birth.
+3. `DATEDIFF(CURDATE(), '2000-01-01')` calculates the number of days between the current date and the date of birth.
+4. `AS Age_In_Days` assigns a meaningful alias to the output column.
+
+## New Concept: CURDATE() Function
+
+The `CURDATE()` function returns the current date in MySQL.
+
+Syntax:
+
+```sql
+CURDATE();
+```
+
+Example:
+
+```sql
+SELECT CURDATE() AS Current_Date;
+```
+
+Sample Output (on 2026-11-16):
+
+| Current_Date |
+|---|
+| 2026-11-16 |
+
+## New Concept: DATEDIFF() Function
+
+The `DATEDIFF()` function returns the difference between two dates in days.
+
+Syntax:
+
+```sql
+DATEDIFF(End_Date, Start_Date);
+```
+
+Example:
+
+```sql
+SELECT
+    DATEDIFF('2026-01-10', '2026-01-01') AS Total_Days;
+```
+
+Output:
+
+| Total_Days |
+|---:|
+| 9 |
+
+## Important Concept: DATEDIFF() Parameter Order
+
+```sql
+DATEDIFF(End_Date, Start_Date)
+```
+
+- The first parameter is the ending date.
+- The second parameter is the starting date.
+- The result is calculated as the first date minus the second date.
+
+## Key Concepts
+
+- `CURDATE()` returns the current date.
+- `DATEDIFF()` calculates the difference between two dates in days.
+- Date values should be written in `YYYY-MM-DD` format.
+- `DATEDIFF()` returns the number of days and does not count the time portion.
+
+---
+
+
+
+### Q74) Display your age in months.
+
+## Problem Description
+
+Write a MySQL query to calculate your age in completed months using your date of birth and the current date.
+
+## Solution
+
+```sql
+SELECT
+    TIMESTAMPDIFF(
+        MONTH,
+        '2000-01-01',
+        CURDATE()
+    ) AS Age_In_Months;
+```
+
+## Sample Output
+
+Assuming:
+
+- Date of Birth: `2000-01-01`
+- Current Date: `2026-11-16`
+
+| Age_In_Months |
+|---:|
+| 322 |
+
+## Explanation
+
+1. `CURDATE()` returns the current date.
+2. `TIMESTAMPDIFF()` calculates the difference between two dates in the specified unit.
+3. `MONTH` tells MySQL to calculate the difference in completed months.
+4. `AS Age_In_Months` gives the output column a meaningful name.
+
+## New Concept: TIMESTAMPDIFF()
+
+`TIMESTAMPDIFF()` calculates the difference between two date or datetime values.
+
+Syntax:
+
+```sql
+TIMESTAMPDIFF(unit, start_date, end_date);
+```
+
+Common units:
+
+| Unit | Purpose |
+|---|---|
+| YEAR | Difference in complete years |
+| MONTH | Difference in complete months |
+| DAY | Difference in days |
+| HOUR | Difference in hours |
+| MINUTE | Difference in minutes |
+| SECOND | Difference in seconds |
+
+Example:
+
+```sql
+-- Calculate age in years
+SELECT TIMESTAMPDIFF(YEAR, '2000-01-01', CURDATE());
+
+-- Calculate age in months
+SELECT TIMESTAMPDIFF(MONTH, '2000-01-01', CURDATE());
+
+-- Calculate age in days
+SELECT TIMESTAMPDIFF(DAY, '2000-01-01', CURDATE());
+```
+
+Note: Replace `'2000-01-01'` with your actual date of birth. `TIMESTAMPDIFF(MONTH, ...)` returns completed months, not rounded months.
+
+## Key Concepts
+
+- `TIMESTAMPDIFF()`
+- `CURDATE()`
+- Date and time functions
+- Date difference calculation
+
+
+
+
+
+### Q75) Display the date in the format: 15th August Friday nineteen forty seven.
+
+## Problem Description
+
+Write a MySQL query to display the date `1947-08-15` in the following format:
+
+`15th August Friday nineteen forty seven`
+
+## Solution
+
+```sql
+SELECT
+    CONCAT(
+        DATE_FORMAT('1947-08-15', '%D %M %W'),
+        ' nineteen forty seven'
+    ) AS Formatted_Date;
+```
+
+## Sample Output
+
+| Formatted_Date |
+|---|
+| 15th August Friday nineteen forty seven |
+
+## Explanation
+
+1. `DATE_FORMAT()` converts a date into the required display format.
+2. `%D` displays the day with its suffix, such as `15th`.
+3. `%M` displays the full month name, such as `August`.
+4. `%W` displays the full weekday name, such as `Friday`.
+5. `CONCAT()` joins the formatted date with the year written in words.
+
+## New Concept: DATE_FORMAT()
+
+`DATE_FORMAT()` is used to display a date in a specified format.
+
+Syntax:
+
+```sql
+DATE_FORMAT(date, format);
+```
+
+Common format specifiers:
+
+| Specifier | Meaning | Example |
+|---|---|---|
+| `%D` | Day with suffix | 15th |
+| `%d` | Day with leading zero | 15 |
+| `%M` | Full month name | August |
+| `%m` | Month number | 08 |
+| `%Y` | Four-digit year | 1947 |
+| `%y` | Two-digit year | 47 |
+| `%W` | Full weekday name | Friday |
+| `%a` | Short weekday name | Fri |
+
+## New Concept: CONCAT()
+
+`CONCAT()` joins two or more strings into a single string.
+
+Example:
+
+```sql
+SELECT CONCAT('Hello', ' ', 'World') AS Result;
+```
+
+Output:
+
+```text
+Hello World
+```
+
+Note: MySQL `DATE_FORMAT()` does not convert a year into words. Therefore, `' nineteen forty seven'` is added manually using `CONCAT()`.
+
+## Key Concepts
+
+- `DATE_FORMAT()`
+- `CONCAT()`
+- Date format specifiers
+- String concatenation
+
+
+
+
+
+### Q76) Display the joining details of each employee in the specified sentence format.
+
+## Problem Description
+
+Write a MySQL query to display the employee name and joining date in the following sentence format:
+
+`scott has joined the company on Wednesday 13th August nineteen ninety`
+
+Use the `EMP` table.
+
+## Solution
+
+```sql
+SELECT
+    CONCAT(
+        LOWER(ENAME),
+        ' has joined the company on ',
+        DATE_FORMAT(HIREDATE, '%W %D %M'),
+        ' nineteen ninety'
+    ) AS Employee_Details
+FROM
+    EMP;
+```
+
+## Sample Output
+
+For an employee named `SCOTT` with a joining date of `1990-08-13`:
+
+| Employee_Details |
+|---|
+| scott has joined the company on Monday 13th August nineteen ninety |
+
+Note: 13 August 1990 was a Monday, not Wednesday. The weekday is generated automatically from the joining date.
+
+## Explanation
+
+1. `LOWER(ENAME)` converts the employee name into lowercase.
+2. `CONCAT()` joins the employee name and joining-date details into one sentence.
+3. `DATE_FORMAT()` formats the joining date.
+4. `' has joined the company on '` adds the required sentence.
+5. `' nineteen ninety'` adds the year in words manually.
+
+## New Concept: Combining String and Date Functions
+
+We can combine multiple MySQL functions inside `CONCAT()` to generate meaningful sentences.
+
+Example:
+
+```sql
+SELECT
+    CONCAT(
+        LOWER('SCOTT'),
+        ' has joined the company on ',
+        DATE_FORMAT('1990-08-13', '%W %D %M')
+    ) AS Employee_Details;
+```
+
+Output:
+
+```text
+scott has joined the company on Monday 13th August
+```
+
+## DATE_FORMAT() Format Specifiers
+
+| Specifier | Meaning | Example |
+|---|---|---|
+| `%W` | Full weekday name | Monday |
+| `%D` | Day with suffix | 13th |
+| `%M` | Full month name | August |
+| `%Y` | Four-digit year | 1990 |
+
+## Key Concepts
+
+- `LOWER()`
+- `CONCAT()`
+- `DATE_FORMAT()`
+- String functions
+- Date functions
+
+
+
+
+
+### Q77) Find the date of the nearest Saturday after the current day.
+
+## Problem Description
+
+Write a MySQL query to find the date of the upcoming Saturday based on the current date.
+
+If today is Saturday, return the following Saturday instead of today's date.
+
+## Solution
+
+```sql
+SELECT
+    DATE_ADD(
+        CURDATE(),
+        INTERVAL (
+            (7 - DAYOFWEEK(CURDATE()) + 7) % 7
+            + 7 * (DAYOFWEEK(CURDATE()) = 7)
+        ) DAY
+    ) AS Next_Saturday;
+```
+
+## Sample Output
+
+Assuming today's date is `2026-11-16` (Monday):
+
+| Current Date | Next Saturday |
+|---|---|
+| 2026-11-16 | 2026-11-21 |
+
+## Explanation
+
+1. `CURDATE()` returns the current date.
+2. `DAYOFWEEK()` returns the weekday number.
+3. `DATE_ADD()` adds the calculated number of days to the current date.
+4. `%` is the modulo operator, which returns the remainder.
+5. The additional condition handles the case where today is already Saturday.
+
+## New Concept: DAYOFWEEK()
+
+`DAYOFWEEK()` returns a number representing the day of the week.
+
+| Day | Number |
+|---|---:|
+| Sunday | 1 |
+| Monday | 2 |
+| Tuesday | 3 |
+| Wednesday | 4 |
+| Thursday | 5 |
+| Friday | 6 |
+| Saturday | 7 |
+
+Example:
+
+```sql
+SELECT DAYOFWEEK('2026-11-16') AS Day_Number;
+```
+
+Output:
+
+```text
+2
+```
+
+## New Concept: DATE_ADD()
+
+`DATE_ADD()` adds a specified time interval to a date.
+
+Syntax:
+
+```sql
+DATE_ADD(date, INTERVAL value unit);
+```
+
+Example:
+
+```sql
+SELECT DATE_ADD('2026-11-16', INTERVAL 5 DAY) AS New_Date;
+```
+
+Output:
+
+```text
+2026-11-21
+```
+
+## Key Concepts
+
+- `CURDATE()`
+- `DAYOFWEEK()`
+- `DATE_ADD()`
+- `INTERVAL`
+- Modulo operator (`%`)
+- Conditional expression
+
+
+
+
+
+### Q78) Display the current time.
+
+## Problem Description
+
+Write a MySQL query to display the current time.
+
+## Solution
+
+```sql
+SELECT
+    CURTIME() AS Current_Time;
+```
+
+## Sample Output
+
+```text
+Current_Time
+10:24:00
+```
+
+Note: The output is an example. The actual time depends on when the query is executed and the MySQL session's time zone.
+
+## Explanation
+
+1. `CURTIME()` returns the current time.
+2. `AS Current_Time` gives the output column a meaningful name.
+3. No table is required because `CURTIME()` is a built-in MySQL function.
+
+## New Concept: CURTIME()
+
+`CURTIME()` is a MySQL date and time function that returns the current time in `HH:MM:SS` format.
+
+Syntax:
+
+```sql
+CURTIME();
+```
+
+Example:
+
+```sql
+SELECT CURTIME() AS Current_Time;
+```
+
+## Other Useful Date and Time Functions
+
+| Function | Purpose |
+|---|---|
+| `CURDATE()` | Returns the current date |
+| `CURTIME()` | Returns the current time |
+| `NOW()` | Returns the current date and time |
+| `CURRENT_TIME()` | Returns the current time |
+| `CURRENT_TIMESTAMP()` | Returns the current date and time |
+
+## Key Concepts
+
+- `CURTIME()`
+- MySQL date and time functions
+- Current system time
+- Column alias using `AS`
+
+
+
+
+
+### Q79) Display the date three months before the current date.
+
+## Problem Description
+
+Write a MySQL query to display the date three months before the current date.
+
+## Solution
+
+```sql
+SELECT
+    DATE_SUB(
+        CURDATE(),
+        INTERVAL 3 MONTH
+    ) AS Previous_Date;
+```
+
+## Sample Output
+
+Assuming today's date is `2026-11-16`:
+
+| Current Date | Previous Date |
+|---|---|
+| 2026-11-16 | 2026-08-16 |
+
+## Explanation
+
+1. `CURDATE()` returns the current date.
+2. `DATE_SUB()` subtracts a specified interval from a date.
+3. `INTERVAL 3 MONTH` specifies that three months should be subtracted.
+4. `AS Previous_Date` gives the output column a meaningful name.
+
+## New Concept: DATE_SUB()
+
+`DATE_SUB()` is a MySQL date function used to subtract a specified time interval from a date.
+
+Syntax:
+
+```sql
+DATE_SUB(date, INTERVAL value unit);
+```
+
+Examples:
+
+```sql
+-- Subtract 3 months
+SELECT DATE_SUB(CURDATE(), INTERVAL 3 MONTH);
+
+-- Subtract 5 days
+SELECT DATE_SUB(CURDATE(), INTERVAL 5 DAY);
+
+-- Subtract 1 year
+SELECT DATE_SUB(CURDATE(), INTERVAL 1 YEAR);
+```
+
+## Difference Between DATE_ADD() and DATE_SUB()
+
+| Function | Purpose |
+|---|---|
+| `DATE_ADD()` | Adds an interval to a date |
+| `DATE_SUB()` | Subtracts an interval from a date |
+
+## Key Concepts
+
+- `CURDATE()`
+- `DATE_SUB()`
+- `INTERVAL`
+- MySQL date functions
+
+
+
+
+
+### Q80) Display the common jobs from department number 10 and 20.
+
+## Problem Description
+
+Write a MySQL query to display the job titles that are common to both department number 10 and department number 20.
+
+## Solution
+
+```sql
+SELECT DISTINCT
+    e.Job_Title
+FROM
+    Employee e
+INNER JOIN
+    Employee e1
+ON
+    e.Job_Title = e1.Job_Title
+WHERE
+    e.Dept_no = 10
+AND
+    e1.Dept_no = 20;
+```
+
+## Explanation
+
+1. `Employee e` represents the first instance of the Employee table.
+2. `Employee e1` represents the second instance of the same table.
+3. `ON e.Job_Title = e1.Job_Title` matches employees having the same job title.
+4. `e.Dept_no = 10` selects job titles from department 10.
+5. `e1.Dept_no = 20` selects job titles from department 20.
+6. `INNER JOIN` returns matching job titles found in both departments.
+7. `DISTINCT` removes duplicate job titles from the result.
+
+## New Concept: Self JOIN
+
+A Self JOIN means joining a table with itself.
+
+It is useful when we want to compare records within the same table.
+
+Syntax:
+
+```sql
+SELECT
+    a.Column_Name
+FROM
+    Employee a
+INNER JOIN
+    Employee b
+ON
+    a.Common_Column = b.Common_Column;
+```
+
+In this question:
+
+| Alias | Purpose |
+|---|---|
+| `e` | Represents department 10 |
+| `e1` | Represents department 20 |
+
+Both aliases refer to the same `Employee` table.
+
+## New Concept: DISTINCT
+
+`DISTINCT` removes duplicate values from the result.
+
+Example:
+
+```sql
+SELECT DISTINCT Job_Title
+FROM Employee;
+```
+
+It displays each job title only once.
+
+## Key Concepts
+
+- Self JOIN
+- INNER JOIN
+- Table aliases
+- DISTINCT
+- Common records
+- JOIN condition
+
+
+
+
