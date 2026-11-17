@@ -2588,3 +2588,448 @@ AND
 -- e1 represents employees from department 20.
 -- INNER JOIN matches the same job titles in both departments.
 -- DISTINCT removes duplicate job titles.
+
+
+
+-- ============================================================
+-- Q81) Display the jobs found in department number 10 and 20
+--      and eliminate duplicate jobs.
+-- ============================================================
+
+-- Table:
+-- Employee
+
+-- Columns:
+-- Job_Title : Employee Job Title
+-- Dept_no   : Department Number
+
+-- Requirement:
+-- Display job titles available in either department 10 or
+-- department 20.
+-- Eliminate duplicate job titles.
+
+-- Solution 1: Using IN
+
+SELECT DISTINCT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no IN (10, 20);
+
+
+-- Solution 2: Using OR
+
+SELECT DISTINCT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no = 10
+OR
+    Dept_no = 20;
+
+
+-- Solution 3: Using UNION
+
+SELECT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no = 10
+
+UNION
+
+SELECT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no = 20;
+
+
+-- Solution 4: Using GROUP BY
+
+SELECT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no IN (10, 20)
+GROUP BY
+    Job_Title;
+
+
+-- Solution 5: Using EXISTS
+
+SELECT DISTINCT
+    e.Job_Title
+FROM
+    Employee e
+WHERE
+    e.Dept_no = 10
+AND EXISTS (
+    SELECT
+        1
+    FROM
+        Employee e2
+    WHERE
+        e2.Job_Title = e.Job_Title
+    AND
+        e2.Dept_no = 20
+);
+
+-- Important:
+-- Solutions 1 to 4 display jobs available in either department.
+-- Solution 5 displays only jobs common to both departments.
+
+
+
+-- ============================================================
+-- Q82) Display the jobs which are unique to department number 10.
+-- ============================================================
+
+-- Table:
+-- Employee
+
+-- Columns:
+-- Job_Title : Employee Job Title
+-- Dept_no   : Department Number
+
+-- Requirement:
+-- Display job titles that exist in department 10 but do not
+-- exist in any other department in the Employee table.
+-- Eliminate duplicate job titles.
+
+-- Solution 1: Using NOT EXISTS
+
+SELECT DISTINCT
+    e.Job_Title
+FROM
+    Employee e
+WHERE
+    e.Dept_no = 10
+AND NOT EXISTS (
+    SELECT
+        1
+    FROM
+        Employee e2
+    WHERE
+        e2.Job_Title = e.Job_Title
+    AND
+        e2.Dept_no <> 10
+);
+
+
+-- Solution 2: Using NOT IN
+
+SELECT DISTINCT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no = 10
+AND
+    Job_Title NOT IN (
+        SELECT
+            Job_Title
+        FROM
+            Employee
+        WHERE
+            Dept_no <> 10
+    );
+
+
+-- Solution 3: Using LEFT JOIN
+
+SELECT DISTINCT
+    e.Job_Title
+FROM
+    Employee e
+LEFT JOIN
+    Employee e2
+ON
+    e.Job_Title = e2.Job_Title
+AND
+    e2.Dept_no <> 10
+WHERE
+    e.Dept_no = 10
+AND
+    e2.Job_Title IS NULL;
+
+
+-- Solution 4: Using GROUP BY and HAVING
+
+SELECT
+    Job_Title
+FROM
+    Employee
+GROUP BY
+    Job_Title
+HAVING
+    SUM(CASE WHEN Dept_no = 10 THEN 1 ELSE 0 END) > 0
+AND
+    SUM(CASE WHEN Dept_no <> 10 THEN 1 ELSE 0 END) = 0;
+
+
+-- Important:
+-- All four solutions find jobs present in department 10
+-- but absent from every other department.
+
+
+
+
+-- Q83) Display the details of those who do not have any person working under them.
+
+-- Table Name: Employee
+-- Columns:
+-- Emp_id       : Employee ID
+-- Employee_Name: Employee Name
+-- Manager_Id   : Manager's Employee ID
+
+-- Solution 1: Using NOT IN
+
+SELECT
+    *
+FROM
+    Employee
+WHERE
+    Emp_id NOT IN (
+        SELECT
+            Manager_Id
+        FROM
+            Employee
+        WHERE
+            Manager_Id IS NOT NULL
+    );
+
+
+-- Solution 2: Using NOT EXISTS
+
+SELECT
+    e.*
+FROM
+    Employee e
+WHERE
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            Employee e2
+        WHERE
+            e2.Manager_Id = e.Emp_id
+    );
+
+
+-- Solution 3: Using LEFT JOIN
+
+SELECT
+    e.*
+FROM
+    Employee e
+LEFT JOIN
+    Employee e2
+ON
+    e.Emp_id = e2.Manager_Id
+WHERE
+    e2.Emp_id IS NULL;
+
+
+
+
+-- Q84) Display the details of employees who are in Sales department and whose grade is 3.
+
+-- Tables:
+-- Employee  : Stores employee details, salary and department ID.
+-- Department: Stores department details.
+-- Salgrade  : Stores salary grades and salary ranges.
+
+-- Solution 1: Using a Single Table
+-- Use this only if Department and Grade columns exist in Employee.
+
+SELECT
+    *
+FROM
+    Employee
+WHERE
+    Department = 'Sales'
+AND
+    Grade = 3;
+
+
+-- Solution 2: Using INNER JOIN
+-- Employee + Department + Salgrade
+
+SELECT
+    e.*
+FROM
+    Employee e
+INNER JOIN
+    Department d
+ON
+    e.Dept_Id = d.Dept_Id
+INNER JOIN
+    Salgrade s
+ON
+    e.Salary BETWEEN s.Losal AND s.Hisal
+WHERE
+    d.Department_Name = 'Sales'
+AND
+    s.Grade = 3;
+
+
+
+-- Q85) Display the details of employees who are not managers but report to a manager.
+
+-- Table Name: Employee
+-- Columns:
+-- Emp_id        : Employee ID
+-- Employee_Name : Employee Name
+-- Manager_Id    : Manager's Employee ID
+
+-- Solution 1: Using NOT EXISTS
+
+SELECT
+    e.*
+FROM
+    Employee e
+WHERE
+    e.Manager_Id IS NOT NULL
+AND
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            Employee e2
+        WHERE
+            e.Emp_id = e2.Manager_Id
+    );
+
+
+-- Solution 2: Using LEFT JOIN
+
+SELECT
+    e.*
+FROM
+    Employee e
+LEFT JOIN
+    Employee e2
+ON
+    e.Emp_id = e2.Manager_Id
+WHERE
+    e.Manager_Id IS NOT NULL
+AND
+    e2.Emp_id IS NULL;
+
+
+-- Solution 3: Using NOT IN
+
+SELECT
+    *
+FROM
+    Employee
+WHERE
+    Manager_Id IS NOT NULL
+AND
+    Emp_id NOT IN (
+        SELECT
+            Manager_Id
+        FROM
+            Employee
+        WHERE
+            Manager_Id IS NOT NULL
+    );
+
+
+
+
+
+-- Q86) Display those employees whose name contains not less than 4 characters.
+
+-- Table Name: Employee
+-- Column Name: Employee_Name
+
+-- Solution 1: Using LENGTH()
+
+SELECT
+    Employee_Name
+FROM
+    Employee
+WHERE
+    LENGTH(Employee_Name) >= 4;
+
+
+-- Solution 2: Using CHAR_LENGTH()
+
+SELECT
+    Employee_Name
+FROM
+    Employee
+WHERE
+    CHAR_LENGTH(Employee_Name) >= 4;
+
+
+
+
+-- Q87) Display those departments whose name starts with 'S'
+--      while the location name ends with 'O'.
+
+-- Table Name: Department
+-- Columns:
+-- Department_Name : Department Name
+-- Location        : Department Location
+
+-- Solution: Using LIKE Operator
+
+SELECT
+    Department_Name
+FROM
+    Department
+WHERE
+    Department_Name LIKE 'S%'
+AND
+    Location LIKE '%O';
+
+
+
+
+-- Q88) Display those employees whose manager name is JONES.
+
+-- Table Name: Employee
+-- Columns:
+-- Emp_Id      : Employee ID
+-- Emp_Name    : Employee Name
+-- Manager_Id  : Manager's Employee ID
+
+-- Solution 1: Using Subquery
+
+SELECT
+    Emp_Name
+FROM
+    Employee
+WHERE
+    Manager_Id = (
+        SELECT
+            Emp_Id
+        FROM
+            Employee
+        WHERE
+            Emp_Name = 'JONES'
+    );
+
+
+-- Solution 2: Using SELF JOIN
+
+SELECT
+    e.Emp_Name
+FROM
+    Employee e
+INNER JOIN
+    Employee m
+ON
+    e.Manager_Id = m.Emp_Id
+WHERE
+    m.Emp_Name = 'JONES';
+
+
