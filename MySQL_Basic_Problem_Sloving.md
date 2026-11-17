@@ -7028,3 +7028,1053 @@ It displays each job title only once.
 
 
 
+### Q81) Display the jobs found in department number 10 and 20 and eliminate duplicate jobs.
+
+## Problem Description
+
+Write MySQL queries to display all job titles available in department number 10 or department number 20.
+
+Eliminate duplicate job titles from the output.
+
+## Solution 1: Using IN
+
+```sql
+SELECT DISTINCT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no IN (10, 20);
+```
+
+### Explanation
+
+- `IN (10, 20)` selects employees belonging to department 10 or 20.
+- `DISTINCT` eliminates duplicate job titles.
+
+## Solution 2: Using OR
+
+```sql
+SELECT DISTINCT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no = 10
+OR
+    Dept_no = 20;
+```
+
+### Explanation
+
+- `OR` checks whether the department number is 10 or 20.
+- `DISTINCT` removes duplicate job titles.
+
+## Solution 3: Using UNION
+
+```sql
+SELECT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no = 10
+
+UNION
+
+SELECT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no = 20;
+```
+
+### Explanation
+
+- The first query retrieves jobs from department 10.
+- The second query retrieves jobs from department 20.
+- `UNION` combines both query results.
+- `UNION` automatically eliminates duplicate rows.
+
+## Solution 4: Using GROUP BY
+
+```sql
+SELECT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no IN (10, 20)
+GROUP BY
+    Job_Title;
+```
+
+### Explanation
+
+- `WHERE` filters employees from departments 10 and 20.
+- `GROUP BY Job_Title` groups records having the same job title.
+- Each job title appears only once.
+
+## Solution 5: Using EXISTS
+
+```sql
+SELECT DISTINCT
+    e.Job_Title
+FROM
+    Employee e
+WHERE
+    e.Dept_no = 10
+AND EXISTS (
+    SELECT
+        1
+    FROM
+        Employee e2
+    WHERE
+        e2.Job_Title = e.Job_Title
+    AND
+        e2.Dept_no = 20
+);
+```
+
+### Explanation
+
+1. `e` represents employees from department 10.
+2. `EXISTS` checks whether a matching job title exists in department 20.
+3. `e2.Job_Title = e.Job_Title` connects the inner query with the outer query.
+4. `e2.Dept_no = 20` checks for the same job title in department 20.
+5. `DISTINCT` eliminates duplicate job titles.
+
+## New Concept 1: UNION
+
+`UNION` combines the results of two or more SELECT statements and automatically removes duplicate rows.
+
+Example:
+
+```sql
+SELECT Job_Title
+FROM Employee
+WHERE Dept_no = 10
+
+UNION
+
+SELECT Job_Title
+FROM Employee
+WHERE Dept_no = 20;
+```
+
+Remember:
+
+- `UNION` removes duplicates.
+- `UNION ALL` keeps duplicates.
+
+## New Concept 2: GROUP BY
+
+`GROUP BY` groups rows that have the same values in specified columns.
+
+Syntax:
+
+```sql
+SELECT Column_Name
+FROM Table_Name
+GROUP BY Column_Name;
+```
+
+It can also be used to display unique values when selecting only the grouped column.
+
+## New Concept 3: EXISTS
+
+`EXISTS` checks whether a subquery returns at least one row.
+
+Syntax:
+
+```sql
+SELECT Column_Name
+FROM Table_Name t1
+WHERE EXISTS (
+    SELECT 1
+    FROM Table_Name t2
+    WHERE t2.Column_Name = t1.Column_Name
+);
+```
+
+## New Concept 4: Correlated Subquery
+
+A correlated subquery refers to a column from the outer query.
+
+In this question:
+
+```sql
+e2.Job_Title = e.Job_Title
+```
+
+The inner query uses the job title from the outer query to check whether a matching record exists in department 20.
+
+## Important Difference: Either Department vs Both Departments
+
+| Requirement | Meaning |
+|---|---|
+| `IN (10, 20)` | Jobs available in either department |
+| `UNION` | Combines jobs from both departments |
+| `EXISTS` | Checks jobs common to both departments |
+
+Note: Solutions 1–4 answer the original question. Solution 5 answers a different question: finding only the common job titles present in both departments.
+
+## Key Concepts
+
+- `IN`
+- `OR`
+- `DISTINCT`
+- `UNION`
+- `GROUP BY`
+- `EXISTS`
+- Correlated subquery
+
+
+
+
+### Q82) Display the jobs which are unique to department number 10.
+
+## Problem Description
+
+Write MySQL queries to display job titles that exist in department number 10 but do not exist in any other department in the Employee table.
+
+Eliminate duplicate job titles.
+
+## Solution 1: Using NOT EXISTS
+
+```sql
+SELECT DISTINCT
+    e.Job_Title
+FROM
+    Employee e
+WHERE
+    e.Dept_no = 10
+AND NOT EXISTS (
+    SELECT
+        1
+    FROM
+        Employee e2
+    WHERE
+        e2.Job_Title = e.Job_Title
+    AND
+        e2.Dept_no <> 10
+);
+```
+
+### Explanation
+
+1. `e.Dept_no = 10` selects employees from department 10.
+2. `NOT EXISTS` checks whether the same job title exists in another department.
+3. `e2.Job_Title = e.Job_Title` compares job titles.
+4. `e2.Dept_no <> 10` checks every department except department 10.
+5. `DISTINCT` removes duplicate job titles.
+
+## Solution 2: Using NOT IN
+
+```sql
+SELECT DISTINCT
+    Job_Title
+FROM
+    Employee
+WHERE
+    Dept_no = 10
+AND
+    Job_Title NOT IN (
+        SELECT
+            Job_Title
+        FROM
+            Employee
+        WHERE
+            Dept_no <> 10
+    );
+```
+
+### Explanation
+
+- The subquery retrieves job titles available in departments other than 10.
+- `NOT IN` excludes those job titles from department 10.
+- `DISTINCT` removes duplicate job titles.
+
+Note: If `Job_Title` can contain NULL values, `NOT IN` may produce unexpected results. `NOT EXISTS` is generally safer.
+
+## Solution 3: Using LEFT JOIN
+
+```sql
+SELECT DISTINCT
+    e.Job_Title
+FROM
+    Employee e
+LEFT JOIN
+    Employee e2
+ON
+    e.Job_Title = e2.Job_Title
+AND
+    e2.Dept_no <> 10
+WHERE
+    e.Dept_no = 10
+AND
+    e2.Job_Title IS NULL;
+```
+
+### Explanation
+
+1. `LEFT JOIN` compares records from the Employee table with itself.
+2. `e.Job_Title = e2.Job_Title` matches the same job titles.
+3. `e2.Dept_no <> 10` searches for matching job titles in other departments.
+4. `e2.Job_Title IS NULL` keeps only job titles that have no matching record in another department.
+5. `DISTINCT` removes duplicates.
+
+## Solution 4: Using GROUP BY and HAVING
+
+```sql
+SELECT
+    Job_Title
+FROM
+    Employee
+GROUP BY
+    Job_Title
+HAVING
+    SUM(CASE WHEN Dept_no = 10 THEN 1 ELSE 0 END) > 0
+AND
+    SUM(CASE WHEN Dept_no <> 10 THEN 1 ELSE 0 END) = 0;
+```
+
+### Explanation
+
+1. `GROUP BY Job_Title` groups employees having the same job title.
+2. `CASE WHEN Dept_no = 10` counts records belonging to department 10.
+3. `SUM()` calculates the number of matching records.
+4. `> 0` ensures the job exists in department 10.
+5. `= 0` ensures the job does not exist in any other department.
+6. `HAVING` filters the grouped results.
+
+## New Concept 1: NOT EXISTS
+
+`NOT EXISTS` checks whether a subquery returns no rows.
+
+Syntax:
+
+```sql
+SELECT Column_Name
+FROM Table_Name t1
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Table_Name t2
+    WHERE t2.Column_Name = t1.Column_Name
+);
+```
+
+It is useful when we want to find records that do not have matching records in another result set.
+
+## New Concept 2: NOT IN
+
+`NOT IN` checks whether a value is absent from a list or subquery result.
+
+Syntax:
+
+```sql
+SELECT Column_Name
+FROM Table_Name
+WHERE Column_Name NOT IN (
+    SELECT Column_Name
+    FROM Another_Table
+);
+```
+
+Important: Be careful when the subquery can return NULL values.
+
+## New Concept 3: LEFT JOIN with IS NULL
+
+This technique is commonly called an Anti JOIN.
+
+It helps find records from one side that have no matching record on the other side.
+
+Example condition:
+
+```sql
+WHERE e2.Job_Title IS NULL;
+```
+
+## New Concept 4: GROUP BY and HAVING
+
+- `GROUP BY` groups rows having the same values.
+- `HAVING` filters the grouped results.
+- `CASE WHEN` performs conditional checks.
+- `SUM()` counts matching records when each matching row contributes 1.
+
+## Important Difference
+
+| Requirement | Condition |
+|---|---|
+| Jobs in department 10 | `Dept_no = 10` |
+| Jobs in departments 10 or 20 | `Dept_no IN (10, 20)` |
+| Jobs common to departments 10 and 20 | Matching job titles in both departments |
+| Jobs unique to department 10 | Present in department 10 and absent from all other departments |
+
+## Key Concepts
+
+- `NOT EXISTS`
+- `NOT IN`
+- `LEFT JOIN`
+- Anti JOIN
+- `GROUP BY`
+- `HAVING`
+- `CASE WHEN`
+- `SUM()`
+- `DISTINCT`
+
+
+### Q83) Display the details of those who do not have any person working under them.
+
+## Problem Description
+
+Write a SQL query to display the complete details of employees who do not have anyone working under them.
+
+In other words, find employees who are not managing any other employee.
+
+## Table Structure
+
+Table Name: `Employee`
+
+| Column Name | Description |
+|---|---|
+| Emp_id | Employee ID |
+| Employee_Name | Employee Name |
+| Manager_Id | Manager's Employee ID |
+
+## Solution 1: Using NOT IN
+
+```sql
+SELECT
+    *
+FROM
+    Employee
+WHERE
+    Emp_id NOT IN (
+        SELECT
+            Manager_Id
+        FROM
+            Employee
+        WHERE
+            Manager_Id IS NOT NULL
+    );
+```
+
+## Solution 2: Using NOT EXISTS
+
+```sql
+SELECT
+    e.*
+FROM
+    Employee e
+WHERE
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            Employee e2
+        WHERE
+            e2.Manager_Id = e.Emp_id
+    );
+```
+
+## Solution 3: Using LEFT JOIN
+
+```sql
+SELECT
+    e.*
+FROM
+    Employee e
+LEFT JOIN
+    Employee e2
+ON
+    e.Emp_id = e2.Manager_Id
+WHERE
+    e2.Emp_id IS NULL;
+```
+
+## Explanation
+
+1. The subquery retrieves all non-NULL `Manager_Id` values.
+2. These values identify employees who have at least one person working under them.
+3. `Emp_id NOT IN` excludes those employees from the result.
+4. The remaining employees have no subordinates.
+5. `SELECT *` displays all details of those employees.
+
+## New Concept: Handling NULL with NOT IN
+
+`NOT IN` can produce unexpected results when its subquery contains NULL.
+
+For example:
+
+```sql
+SELECT Manager_Id
+FROM Employee;
+```
+
+If the result contains NULL, the outer `NOT IN` condition may evaluate to UNKNOWN and return no matching rows.
+
+Therefore, use:
+
+```sql
+WHERE Manager_Id IS NOT NULL
+```
+
+to exclude NULL values from the subquery.
+
+## New Concept: NOT EXISTS
+
+`NOT EXISTS` checks whether a matching record exists in the subquery.
+
+```sql
+WHERE e2.Manager_Id = e.Emp_id
+```
+
+This checks whether another employee reports to the current employee.
+
+If no matching employee exists, `NOT EXISTS` returns TRUE.
+
+## New Concept: LEFT JOIN
+
+`LEFT JOIN` returns all employees from the first table and matching subordinate records from the second table.
+
+```sql
+WHERE e2.Emp_id IS NULL
+```
+
+This identifies employees who have no matching subordinate.
+
+## Key Concepts
+
+- `NOT IN`
+- `NOT EXISTS`
+- `LEFT JOIN`
+- `IS NOT NULL`
+- Self Join
+- NULL handling
+- Subqueries
+
+---
+
+
+### Q84) Display the details of employees who are in Sales department and whose grade is 3.
+
+## Problem Description
+
+Write a SQL query to display the complete details of employees who belong to the Sales department and have salary grade 3.
+
+## Table Structure
+
+### Employee Table
+
+| Column Name | Description |
+|---|---|
+| Emp_Id | Employee ID |
+| Employee_Name | Employee Name |
+| Salary | Employee Salary |
+| Dept_Id | Department ID |
+
+### Department Table
+
+| Column Name | Description |
+|---|---|
+| Dept_Id | Department ID |
+| Department_Name | Department Name |
+
+### Salgrade Table
+
+| Column Name | Description |
+|---|---|
+| Grade | Salary Grade |
+| Losal | Minimum Salary |
+| Hisal | Maximum Salary |
+
+## Solution 1: Using a Single Table
+
+This approach works only when Department and Grade are available as columns in the Employee table.
+
+```sql
+SELECT
+    *
+FROM
+    Employee
+WHERE
+    Department = 'Sales'
+AND
+    Grade = 3;
+```
+
+## Solution 2: Using INNER JOIN
+
+```sql
+SELECT
+    e.*
+FROM
+    Employee e
+INNER JOIN
+    Department d
+ON
+    e.Dept_Id = d.Dept_Id
+INNER JOIN
+    Salgrade s
+ON
+    e.Salary BETWEEN s.Losal AND s.Hisal
+WHERE
+    d.Department_Name = 'Sales'
+AND
+    s.Grade = 3;
+```
+
+## Explanation
+
+1. First, join the Employee table with the Department table using Dept_Id.
+2. Join the Salgrade table using the employee's Salary and the salary range.
+3. Use `BETWEEN` to identify the salary grade of each employee.
+4. Use `d.Department_Name = 'Sales'` to select employees from the Sales department.
+5. Use `s.Grade = 3` to select employees belonging to salary grade 3.
+6. Use `SELECT e.*` to display complete employee details.
+
+## New Concept: BETWEEN Operator
+
+The `BETWEEN` operator checks whether a value falls within a specified range.
+
+Syntax:
+
+```sql
+value BETWEEN lower_value AND upper_value
+```
+
+Example:
+
+```sql
+Salary BETWEEN 2000 AND 3000;
+```
+
+This includes both 2000 and 3000.
+
+## New Concept: Multiple INNER JOINs
+
+We can join more than two tables in a single SQL query.
+
+In this question:
+- Employee and Department are joined using Dept_Id.
+- Employee and Salgrade are joined using Salary and the salary range.
+
+## Key Concepts
+
+- INNER JOIN
+- Multiple Table JOIN
+- BETWEEN Operator
+- WHERE Clause
+- AND Operator
+- Table Aliases
+- Salary Grade Calculation
+
+---
+
+
+### Q85) Display the details of employees who are not managers but report to a manager.
+
+## Problem Description
+
+Write a SQL query to display the details of employees who have a manager assigned to them but do not have anyone working under them.
+
+In simple words:
+- Employees must report to someone.
+- Employees must not manage anyone.
+
+## Table Structure
+
+Table Name: `Employee`
+
+| Column Name | Description |
+|---|---|
+| Emp_id | Employee ID |
+| Employee_Name | Employee Name |
+| Manager_Id | Manager's Employee ID |
+
+## Solution 1: Using NOT EXISTS
+
+```sql
+SELECT
+    e.*
+FROM
+    Employee e
+WHERE
+    e.Manager_Id IS NOT NULL
+AND
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            Employee e2
+        WHERE
+            e.Emp_id = e2.Manager_Id
+    );
+```
+
+## Solution 2: Using LEFT JOIN
+
+```sql
+SELECT
+    e.*
+FROM
+    Employee e
+LEFT JOIN
+    Employee e2
+ON
+    e.Emp_id = e2.Manager_Id
+WHERE
+    e.Manager_Id IS NOT NULL
+AND
+    e2.Emp_id IS NULL;
+```
+
+## Solution 3: Using NOT IN
+
+```sql
+SELECT
+    *
+FROM
+    Employee
+WHERE
+    Manager_Id IS NOT NULL
+AND
+    Emp_id NOT IN (
+        SELECT
+            Manager_Id
+        FROM
+            Employee
+        WHERE
+            Manager_Id IS NOT NULL
+    );
+```
+
+## Explanation
+
+1. `Manager_Id IS NOT NULL` selects employees who have a manager.
+2. The subquery checks whether another employee has the current employee's ID as their Manager_Id.
+3. `NOT EXISTS` ensures that no employee reports to the current employee.
+4. Both conditions must be true because we use `AND`.
+5. `SELECT e.*` displays all details of the selected employees.
+
+## New Concept: NOT EXISTS
+
+`NOT EXISTS` checks whether a subquery returns no matching records.
+
+Example:
+
+```sql
+NOT EXISTS (
+    SELECT 1
+    FROM Employee e2
+    WHERE e.Emp_id = e2.Manager_Id
+)
+```
+
+If nobody reports to the current employee, the condition returns TRUE.
+
+## New Concept: Self Join
+
+A self join means joining a table with itself.
+
+Here:
+- `e` represents the employee.
+- `e2` represents another employee.
+- `e.Emp_id = e2.Manager_Id` checks whether the second employee reports to the first employee.
+
+## New Concept: IS NOT NULL
+
+```sql
+Manager_Id IS NOT NULL
+```
+
+Checks that an employee has a manager assigned.
+
+## Key Concepts
+
+- NOT EXISTS
+- LEFT JOIN
+- NOT IN
+- Self Join
+- IS NOT NULL
+- Subqueries
+- AND Operator
+
+---
+
+
+### Q86) Display those employees whose name contains not less than 4 characters.
+
+## Problem Description
+
+Write a SQL query to display the names of employees whose names contain at least 4 characters.
+
+In simple words, display employee names having 4 or more characters.
+
+## Table Structure
+
+Table Name: `Employee`
+
+| Column Name | Description |
+|---|---|
+| Employee_Name | Employee Name |
+
+## Solution 1: Using LENGTH()
+
+```sql
+SELECT
+    Employee_Name
+FROM
+    Employee
+WHERE
+    LENGTH(Employee_Name) >= 4;
+```
+
+## Solution 2: Using CHAR_LENGTH()
+
+```sql
+SELECT
+    Employee_Name
+FROM
+    Employee
+WHERE
+    CHAR_LENGTH(Employee_Name) >= 4;
+```
+
+## Explanation
+
+1. `LENGTH(Employee_Name)` calculates the length of the employee name in bytes.
+2. `CHAR_LENGTH(Employee_Name)` calculates the actual number of characters.
+3. `>= 4` selects names containing 4 or more characters.
+4. `SELECT Employee_Name` displays the employee names.
+
+## New Concept: LENGTH()
+
+The `LENGTH()` function returns the number of bytes in a string in MySQL.
+
+Example:
+
+```sql
+SELECT LENGTH('Atharva');
+```
+
+Output: `7`
+
+## New Concept: CHAR_LENGTH()
+
+The `CHAR_LENGTH()` function returns the actual number of characters in a string.
+
+Example:
+
+```sql
+SELECT CHAR_LENGTH('Atharva');
+```
+
+Output: `7`
+
+## New Concept: Greater Than or Equal To (>=)
+
+The `>=` operator checks whether a value is greater than or equal to another value.
+
+| Condition | Meaning |
+|---|---|
+| `> 4` | More than 4 characters |
+| `>= 4` | 4 or more characters |
+| `< 4` | Less than 4 characters |
+| `<= 4` | 4 or fewer characters |
+
+## Key Concepts
+
+- LENGTH()
+- CHAR_LENGTH()
+- WHERE Clause
+- Comparison Operators
+- Greater Than or Equal To (>=)
+
+---
+
+
+### Q87) Display those departments whose name starts with 'S' while the location name ends with 'O'.
+
+## Problem Description
+
+Write a SQL query to display department names that start with the letter 'S' and whose location names end with the letter 'O'.
+
+Both conditions must be satisfied.
+
+## Table Structure
+
+Table Name: `Department`
+
+| Column Name | Description |
+|---|---|
+| Department_Name | Department Name |
+| Location | Department Location |
+
+## Solution: Using LIKE Operator
+
+```sql
+SELECT
+    Department_Name
+FROM
+    Department
+WHERE
+    Department_Name LIKE 'S%'
+AND
+    Location LIKE '%O';
+```
+
+## Explanation
+
+1. `Department_Name LIKE 'S%'` selects department names that start with the letter 'S'.
+2. `Location LIKE '%O'` selects locations that end with the letter 'O'.
+3. `AND` ensures that both conditions must be true.
+4. `SELECT Department_Name` displays the matching department names.
+
+## New Concept: LIKE Operator
+
+The `LIKE` operator is used for pattern matching in SQL.
+
+It helps search for values based on specific character patterns.
+
+## New Concept: Wildcard Characters
+
+SQL provides two commonly used wildcard characters with `LIKE`.
+
+| Wildcard | Meaning | Example |
+|---|---|---|
+| `%` | Zero or more characters | `'S%'` |
+| `_` | Exactly one character | `'S_'` |
+
+## LIKE Pattern Examples
+
+| Pattern | Meaning |
+|---|---|
+| `'S%'` | Starts with S |
+| `'%O'` | Ends with O |
+| `'%A%'` | Contains A anywhere |
+| `'_A%'` | A is the second character |
+| `'S___'` | Starts with S and has exactly 4 characters |
+
+## New Concept: AND Operator
+
+The `AND` operator combines multiple conditions.
+
+All conditions must be true for a row to be selected.
+
+Example:
+
+```sql
+WHERE
+    Department_Name LIKE 'S%'
+AND
+    Location LIKE '%O';
+```
+
+## Key Concepts
+
+- LIKE Operator
+- Wildcard Characters (`%` and `_`)
+- Pattern Matching
+- AND Operator
+- WHERE Clause
+
+---
+
+
+### Q88) Display those employees whose manager name is JONES.
+
+## Problem Description
+
+Write a SQL query to display the names of employees who report to a manager named JONES.
+
+In simple words, find the employee ID of JONES and display the employees whose Manager_Id matches that employee ID.
+
+## Table Structure
+
+Table Name: `Employee`
+
+| Column Name | Description |
+|---|---|
+| Emp_Id | Employee ID |
+| Emp_Name | Employee Name |
+| Manager_Id | Manager's Employee ID |
+
+## Solution 1: Using Subquery
+
+```sql
+SELECT
+    Emp_Name
+FROM
+    Employee
+WHERE
+    Manager_Id = (
+        SELECT
+            Emp_Id
+        FROM
+            Employee
+        WHERE
+            Emp_Name = 'JONES'
+    );
+```
+
+## Solution 2: Using SELF JOIN
+
+```sql
+SELECT
+    e.Emp_Name
+FROM
+    Employee e
+INNER JOIN
+    Employee m
+ON
+    e.Manager_Id = m.Emp_Id
+WHERE
+    m.Emp_Name = 'JONES';
+```
+
+## Explanation
+
+### Solution 1: Using Subquery
+
+1. The inner query finds the employee ID of JONES.
+2. The outer query checks the Manager_Id of every employee.
+3. It selects employees whose Manager_Id matches JONES's Emp_Id.
+4. The result displays the names of employees reporting to JONES.
+
+### Solution 2: Using SELF JOIN
+
+1. We join the Employee table with itself.
+2. `e` represents the employee.
+3. `m` represents the manager.
+4. `e.Manager_Id = m.Emp_Id` connects each employee to their manager.
+5. `m.Emp_Name = 'JONES'` filters employees whose manager is JONES.
+
+## New Concept: Subquery
+
+A subquery is a query written inside another SQL query.
+
+The inner query executes to provide a result to the outer query.
+
+## New Concept: SELF JOIN
+
+A SELF JOIN means joining a table with itself.
+
+It is useful when records in the same table are related to each other, such as employees and their managers.
+
+## Key Concepts
+
+- Subquery
+- SELF JOIN
+- INNER JOIN
+- WHERE Clause
+- Employee-Manager Relationship
+- Table Aliases
+
+---
+
+
+
+
